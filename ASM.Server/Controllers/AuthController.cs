@@ -13,12 +13,10 @@ namespace ASM.Server.Controllers
 	[Route("api/[controller]")]
 	public class AuthController : Controller
 	{
-		// Khi bắt tay vào làm giao diện sẽ tiếp tục với phần này
-
 		private readonly IConfiguration _config;
-		private readonly UserManager<IdentityUser> _userManager;
+		private readonly UserManager<AppUser> _userManager;
 
-		public AuthController(UserManager<IdentityUser> userManager, IConfiguration config)
+		public AuthController(UserManager<AppUser> userManager, IConfiguration config)
 		{
 			_userManager = userManager;
 			_config = config;
@@ -35,10 +33,12 @@ namespace ASM.Server.Controllers
 
 				if (user == null)
 				{
-					user = new IdentityUser
+					user = new AppUser
 					{
 						UserName = payload.Email,
 						Email = payload.Email,
+						FullName = payload.Name,
+						Address = ""
 					};
 					var result = await _userManager.CreateAsync(user);
 					if (!result.Succeeded)

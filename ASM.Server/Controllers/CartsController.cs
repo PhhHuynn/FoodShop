@@ -21,89 +21,114 @@ namespace ASM.Server.Controllers
             _context = context;
         }
 
-        // GET: api/Carts
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cart>>> GetCart()
+		// GET: api/Carts/active/2
+		[HttpGet("active/{userId}")]
+        public async Task<ActionResult<Cart>> GetActiveCart(string userId)
         {
-            return await _context.Cart.ToListAsync();
-        }
-
-        // GET: api/Carts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Cart>> GetCart(int id)
-        {
-            var cart = await _context.Cart.FindAsync(id);
+            var cart = await _context.Carts
+                .Include(c => c.CartDetails)
+                .ThenInclude(cd => cd.Food)
+                .FirstOrDefaultAsync(c => c.UserId == userId && c.Status == CartStatus.Active);
 
             if (cart == null)
             {
-                return NotFound();
-            }
-
-            return cart;
-        }
-
-        // PUT: api/Carts/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCart(int id, Cart cart)
-        {
-            if (id != cart.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(cart).State = EntityState.Modified;
-
-            try
-            {
+                cart = new Cart
+                {
+                    UserId = userId,
+                    Status = CartStatus.Active,
+                    CartDetails = new List<CartDetail>()
+                };
+                _context.Carts.Add(cart);
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CartExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+			}
+			return cart;
+		}
 
-            return NoContent();
-        }
-
-        // POST: api/Carts
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Cart>> PostCart(Cart cart)
+        // POST: api/Carts/1/add
+        [HttpPost("{cartId}/add")]
+        public async Task<ActionResult> AddToCart(int cartId, [FromBody] CartDetail cartDetail)
         {
-            
-            _context.Cart.Add(cart);
+            var cart = await _context.Carts
+                .Include(c => c.CartDetails)
+                .FirstOrDefaultAsync(c => c.Id == cartId);
+
+            if (cart == null ||  cart.Status != CartStatus.Active)
+            {
+                return BadRequest("Cart not found or not active");
+            }
+
+            var existing = cart.CartDetails.FirstOrDefault(d => d.Id == cartDetail.Id);
+            if (existing == null)
+            {
+                cart.CartDetails.Add(new CartDetail
+                {
+                    FoodId = cartDetail.FoodId,
+                    CartId = cart.Id,
+                    Quantity = cartDetail.Quantity,
+                });
+            }
+            else
+            {
+                existing.Quantity += 1;
+            }
+
             await _context.SaveChangesAsync();
+            return Ok(cart);
+		}
 
-            return CreatedAtAction("GetCart", new { id = cart.Id }, cart);
-        }
-
-        // DELETE: api/Carts/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCart(int id)
+        // DELETE: api/Carts/1/remove/2
+        [HttpDelete("{cartId}/remove/{foodId}")]
+        public async Task<IActionResult> RemoveFromCart(int cartId, int foodId)
         {
-            var cart = await _context.Cart.FindAsync(id);
-            if (cart == null)
-            {
+            var item = await _context.CartDetails
+                .FirstOrDefaultAsync(d => d.CartId == cartId && d.FoodId == foodId);
+
+            if (item == null) {
                 return NotFound();
             }
 
-            _context.Cart.Remove(cart);
+            _context.CartDetails.Remove(item);
             await _context.SaveChangesAsync();
 
             return NoContent();
+		}
+
+		[HttpPost("{cartId}/checkout")]
+        public async Task<IActionResult> Checkout(int cartId)
+        {
+            var cart = await _context.Carts
+                .Include(c => c.CartDetails)
+                .FirstOrDefaultAsync(c => c.Id == cartId);
+
+            if (cart == null) return NotFound();
+
+            if (!cart.CartDetails.Any()) return BadRequest("Cart is empty");
+
+            cart.Status = CartStatus.CheckedOut;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Checkout successful"});
         }
 
-        private bool CartExists(int id)
-        {
-            return _context.Cart.Any(e => e.Id == id);
-        }
-    }
+		[HttpPut("{cartId}/items/{foodId}")]
+		public async Task<IActionResult> UpdateCartItemQuantity(int cartId, int foodId, [FromBody] int quantity)
+		{
+			var item = await _context.CartDetails
+				.FirstOrDefaultAsync(d => d.CartId == cartId && d.FoodId == foodId);
+
+			if (item == null)
+				return NotFound("Item not found in the cart.");
+
+			if (quantity <= 0)
+				return BadRequest("Quantity must be greater than 0.");
+
+			item.Quantity = quantity;
+
+			await _context.SaveChangesAsync();
+
+			return Ok(new { message = "Quantity updated successfully", item });
+		}
+
+
+	}
 }

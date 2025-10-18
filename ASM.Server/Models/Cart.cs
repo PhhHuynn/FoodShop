@@ -5,7 +5,7 @@ namespace ASM.Server.Models
 	public class Cart
 	{
 		public int Id { get; set; }
-		public int Status { get; set; }
+		public CartStatus Status { get; set; } = CartStatus.Active;
 
 		public string UserId { get; set; }
 		[ForeignKey(nameof(UserId))]

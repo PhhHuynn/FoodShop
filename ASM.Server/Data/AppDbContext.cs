@@ -18,7 +18,7 @@ namespace ASM.Server.Data
 		public DbSet<ComboFood> ComboFoods { get; set; }
 		public DbSet<Order> Orders { get; set; }
 		public DbSet<OrderDetail> OrderDetails { get; set; }
-		public DbSet<Cart> Cart { get; set; }
+		public DbSet<Cart> Carts { get; set; }
 		public DbSet<CartDetail> CartDetails { get; set; }
 		public DbSet<Conversation> Conversations { get; set; }
 		public DbSet<Message> Messages { get; set; }
