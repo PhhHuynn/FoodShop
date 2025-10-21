@@ -12,49 +12,47 @@ namespace ASM.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ComboesController : ControllerBase
+    public class MessagesController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public ComboesController(AppDbContext context)
+        public MessagesController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Comboes
+        // GET: api/Messages
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Combo>>> GetCombos()
+        public async Task<ActionResult<IEnumerable<Message>>> GetMessages()
         {
-            return await _context.Combos.ToListAsync();
+            return await _context.Messages.ToListAsync();
         }
 
-        // GET: api/Comboes/5
+        // GET: api/Messages/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Combo>> GetCombo(int id)
+        public async Task<ActionResult<Message>> GetMessage(int id)
         {
-            var combo = await _context.Combos
-                .Include(c => c.ComboFoods)
-                .FirstOrDefaultAsync(c => c.Id == id) ;
+            var message = await _context.Messages.FindAsync(id);
 
-            if (combo == null)
+            if (message == null)
             {
                 return NotFound();
             }
 
-            return combo;
+            return message;
         }
 
-        // PUT: api/Comboes/5
+        // PUT: api/Messages/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCombo(int id, Combo combo)
+        public async Task<IActionResult> PutMessage(int id, Message message)
         {
-            if (id != combo.Id)
+            if (id != message.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(combo).State = EntityState.Modified;
+            _context.Entry(message).State = EntityState.Modified;
 
             try
             {
@@ -62,7 +60,7 @@ namespace ASM.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ComboExists(id))
+                if (!MessageExists(id))
                 {
                     return NotFound();
                 }
@@ -75,36 +73,36 @@ namespace ASM.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/Comboes
+        // POST: api/Messages
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Combo>> PostCombo(Combo combo)
+        public async Task<ActionResult<Message>> PostMessage(Message message)
         {
-            _context.Combos.Add(combo);
+            _context.Messages.Add(message);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCombo", new { id = combo.Id }, combo);
+            return CreatedAtAction("GetMessage", new { id = message.Id }, message);
         }
 
-        // DELETE: api/Comboes/5
+        // DELETE: api/Messages/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCombo(int id)
+        public async Task<IActionResult> DeleteMessage(int id)
         {
-            var combo = await _context.Combos.FindAsync(id);
-            if (combo == null)
+            var message = await _context.Messages.FindAsync(id);
+            if (message == null)
             {
                 return NotFound();
             }
 
-            _context.Combos.Remove(combo);
+            _context.Messages.Remove(message);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ComboExists(int id)
+        private bool MessageExists(int id)
         {
-            return _context.Combos.Any(e => e.Id == id);
+            return _context.Messages.Any(e => e.Id == id);
         }
     }
 }

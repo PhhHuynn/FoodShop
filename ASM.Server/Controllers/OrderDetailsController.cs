@@ -12,49 +12,47 @@ namespace ASM.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ComboesController : ControllerBase
+    public class OrderDetailsController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public ComboesController(AppDbContext context)
+        public OrderDetailsController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Comboes
+        // GET: api/OrderDetails
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Combo>>> GetCombos()
+        public async Task<ActionResult<IEnumerable<OrderDetail>>> GetOrderDetails()
         {
-            return await _context.Combos.ToListAsync();
+            return await _context.OrderDetails.ToListAsync();
         }
 
-        // GET: api/Comboes/5
+        // GET: api/OrderDetails/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Combo>> GetCombo(int id)
+        public async Task<ActionResult<OrderDetail>> GetOrderDetail(int id)
         {
-            var combo = await _context.Combos
-                .Include(c => c.ComboFoods)
-                .FirstOrDefaultAsync(c => c.Id == id) ;
+            var orderDetail = await _context.OrderDetails.FindAsync(id);
 
-            if (combo == null)
+            if (orderDetail == null)
             {
                 return NotFound();
             }
 
-            return combo;
+            return orderDetail;
         }
 
-        // PUT: api/Comboes/5
+        // PUT: api/OrderDetails/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCombo(int id, Combo combo)
+        public async Task<IActionResult> PutOrderDetail(int id, OrderDetail orderDetail)
         {
-            if (id != combo.Id)
+            if (id != orderDetail.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(combo).State = EntityState.Modified;
+            _context.Entry(orderDetail).State = EntityState.Modified;
 
             try
             {
@@ -62,7 +60,7 @@ namespace ASM.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ComboExists(id))
+                if (!OrderDetailExists(id))
                 {
                     return NotFound();
                 }
@@ -75,36 +73,36 @@ namespace ASM.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/Comboes
+        // POST: api/OrderDetails
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Combo>> PostCombo(Combo combo)
+        public async Task<ActionResult<OrderDetail>> PostOrderDetail(OrderDetail orderDetail)
         {
-            _context.Combos.Add(combo);
+            _context.OrderDetails.Add(orderDetail);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCombo", new { id = combo.Id }, combo);
+            return CreatedAtAction("GetOrderDetail", new { id = orderDetail.Id }, orderDetail);
         }
 
-        // DELETE: api/Comboes/5
+        // DELETE: api/OrderDetails/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCombo(int id)
+        public async Task<IActionResult> DeleteOrderDetail(int id)
         {
-            var combo = await _context.Combos.FindAsync(id);
-            if (combo == null)
+            var orderDetail = await _context.OrderDetails.FindAsync(id);
+            if (orderDetail == null)
             {
                 return NotFound();
             }
 
-            _context.Combos.Remove(combo);
+            _context.OrderDetails.Remove(orderDetail);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ComboExists(int id)
+        private bool OrderDetailExists(int id)
         {
-            return _context.Combos.Any(e => e.Id == id);
+            return _context.OrderDetails.Any(e => e.Id == id);
         }
     }
 }

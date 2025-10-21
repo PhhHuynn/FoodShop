@@ -7,7 +7,7 @@ namespace ASM.Server.Models
 	{
 		public int CategoryId { get; set; }
 		[ForeignKey(nameof(CategoryId))]
-		public Category Category { get; set; }
+		public Category? Category { get; set; }
 		public ICollection<ComboFood> ComboFoods { get; set; }
 	}
 }

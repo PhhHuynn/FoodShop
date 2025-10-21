@@ -12,49 +12,47 @@ namespace ASM.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ComboesController : ControllerBase
+    public class ComboFoodsController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public ComboesController(AppDbContext context)
+        public ComboFoodsController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Comboes
+        // GET: api/ComboFoods
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Combo>>> GetCombos()
+        public async Task<ActionResult<IEnumerable<ComboFood>>> GetComboFoods()
         {
-            return await _context.Combos.ToListAsync();
+            return await _context.ComboFoods.ToListAsync();
         }
 
-        // GET: api/Comboes/5
+        // GET: api/ComboFoods/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Combo>> GetCombo(int id)
+        public async Task<ActionResult<ComboFood>> GetComboFood(int id)
         {
-            var combo = await _context.Combos
-                .Include(c => c.ComboFoods)
-                .FirstOrDefaultAsync(c => c.Id == id) ;
+            var comboFood = await _context.ComboFoods.FindAsync(id);
 
-            if (combo == null)
+            if (comboFood == null)
             {
                 return NotFound();
             }
 
-            return combo;
+            return comboFood;
         }
 
-        // PUT: api/Comboes/5
+        // PUT: api/ComboFoods/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCombo(int id, Combo combo)
+        public async Task<IActionResult> PutComboFood(int id, ComboFood comboFood)
         {
-            if (id != combo.Id)
+            if (id != comboFood.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(combo).State = EntityState.Modified;
+            _context.Entry(comboFood).State = EntityState.Modified;
 
             try
             {
@@ -62,7 +60,7 @@ namespace ASM.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ComboExists(id))
+                if (!ComboFoodExists(id))
                 {
                     return NotFound();
                 }
@@ -75,36 +73,36 @@ namespace ASM.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/Comboes
+        // POST: api/ComboFoods
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Combo>> PostCombo(Combo combo)
+        public async Task<ActionResult<ComboFood>> PostComboFood(ComboFood comboFood)
         {
-            _context.Combos.Add(combo);
+            _context.ComboFoods.Add(comboFood);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCombo", new { id = combo.Id }, combo);
+            return CreatedAtAction("GetComboFood", new { id = comboFood.Id }, comboFood);
         }
 
-        // DELETE: api/Comboes/5
+        // DELETE: api/ComboFoods/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCombo(int id)
+        public async Task<IActionResult> DeleteComboFood(int id)
         {
-            var combo = await _context.Combos.FindAsync(id);
-            if (combo == null)
+            var comboFood = await _context.ComboFoods.FindAsync(id);
+            if (comboFood == null)
             {
                 return NotFound();
             }
 
-            _context.Combos.Remove(combo);
+            _context.ComboFoods.Remove(comboFood);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ComboExists(int id)
+        private bool ComboFoodExists(int id)
         {
-            return _context.Combos.Any(e => e.Id == id);
+            return _context.ComboFoods.Any(e => e.Id == id);
         }
     }
 }
