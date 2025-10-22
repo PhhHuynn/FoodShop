@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.Google;
-
+using ASM.Server.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,7 +61,22 @@ builder.Services.AddAuthentication(options =>
 	 googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
  });
 
+// CORS
+builder.Services.AddCors(options =>
+{
+	options.AddDefaultPolicy(policy =>
+	{
+		policy.WithOrigins("https://localhost:59257")
+			  .AllowAnyHeader()
+			  .AllowAnyMethod()
+			  .AllowCredentials();
+	});
+});
+
+
 var app = builder.Build();
+
+//app.MapHub<ChatHub>("/chathub");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -70,10 +84,12 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
+app.UseCors("AllowVueClient");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
-app.UseAuthorization();
+app.UseAuthorization(); 
+app.MapFallbackToFile("/index.html");
 
 app.MapControllers();
 

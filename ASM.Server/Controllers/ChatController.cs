@@ -12,17 +12,36 @@ namespace ASM.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ConversationsController : ControllerBase
+    public class ChatController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public ConversationsController(AppDbContext context)
+        public ChatController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Conversations
-        [HttpGet]
+        [HttpPost("send")]
+        public async Task<IActionResult> SendMessage([FromBody] Message message)
+        {
+            _context.Messages.Add(message);
+            await _context.SaveChangesAsync();
+            return Ok();
+		}
+
+        [HttpGet("conversation/{conversationId}/messages")]
+        public async Task<IActionResult> GetMessages(int conversationId)
+        {
+            var messages = await _context.Messages
+                .Where(m => m.ConversationId == conversationId)
+                .OrderBy(m => m.CreateAt)
+                .ToListAsync();
+            return Ok(messages);
+		}
+
+
+		// GET: api/Conversations
+		[HttpGet]
         public async Task<ActionResult<IEnumerable<Conversation>>> GetConversations()
         {
             return await _context.Conversations.ToListAsync();
