@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ASM.Server.Data;
+using ASM.Server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ASM.Server.Data;
-using ASM.Server.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ASM.Server.Controllers
 {
@@ -32,11 +33,13 @@ namespace ASM.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Combo>> GetCombo(int id)
         {
-            var combo = await _context.Combos
-                .Include(c => c.ComboFoods)
-                .FirstOrDefaultAsync(c => c.Id == id) ;
+			var combo = await _context.Combos
+	        .Include(c => c.ComboFoods)
+	        .ThenInclude(cf => cf.Food)
+	        .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (combo == null)
+
+			if (combo == null)
             {
                 return NotFound();
             }
@@ -78,7 +81,8 @@ namespace ASM.Server.Controllers
         // POST: api/Comboes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Combo>> PostCombo(Combo combo)
+		[Authorize(Policy = "AdminPolicy")]
+		public async Task<ActionResult<Combo>> PostCombo(Combo combo)
         {
             _context.Combos.Add(combo);
             await _context.SaveChangesAsync();

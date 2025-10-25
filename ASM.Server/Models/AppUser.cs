@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.Text.Json.Serialization;
 
 namespace ASM.Server.Models
 {
@@ -10,6 +11,7 @@ namespace ASM.Server.Models
 		public DateTime CreateAt { get; set; } = DateTime.UtcNow;
 
 		public ICollection<Order> Orders { get; set; }
+		[JsonIgnore]
 		public ICollection<Message> Messages { get; set; }
 		public ICollection<Conversation> CustomerConversations { get; set; }
 		public ICollection<Conversation> EmployeeConversations { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ASM.Server.Models
 {
@@ -14,10 +15,11 @@ namespace ASM.Server.Models
 		public int ConversationId { get; set; }
 		public string SenderId { get; set; }
 
+		[JsonIgnore]
 		[ForeignKey(nameof(ConversationId))]
-		public Conversation Conversation { get; set; }
+		public Conversation? Conversation { get; set; }
 
 		[ForeignKey(nameof(SenderId))]
-		public AppUser Sender { get; set; }
+		public AppUser? Sender { get; set; }
 	}
 }

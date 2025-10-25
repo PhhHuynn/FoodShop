@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ASM.Server.Models
 {
@@ -9,10 +10,11 @@ namespace ASM.Server.Models
 		public int ComboId { get; set; }
 		public int Quantity { get; set; }
 
+		[JsonIgnore]
 		[ForeignKey(nameof(ComboId))]
-		public Combo Combo { get; set; }
+		public Combo? Combo { get; set; }
 
 		[ForeignKey(nameof(FoodId))]
-		public Food Food { get; set; }
+		public Food? Food { get; set; }
 	}
 }

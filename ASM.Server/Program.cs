@@ -16,6 +16,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// COR
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowFrontend", policy =>
+	{
+		policy.WithOrigins("http://localhost:59257") 
+			  .AllowAnyHeader()
+			  .AllowAnyMethod();
+	});
+});
+
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // DB
@@ -74,9 +86,32 @@ builder.Services.AddCors(options =>
 });
 
 
+// Policy
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
+	options.AddPolicy("UserPolicy", policy => policy.RequireRole("User"));
+	options.AddPolicy("SaleOrAdminPolicy", policy => policy.RequireRole("Sale", "Admin"));
+});
+
 var app = builder.Build();
 
 //app.MapHub<ChatHub>("/chathub");
+
+using (var scope = app.Services.CreateScope())
+{
+	var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+	string[] roleNames = { "Admin", "User", "Sale" };
+
+	foreach (var roleName in roleNames)
+	{
+		var roleExist = await roleManager.RoleExistsAsync(roleName);
+		if (!roleExist)
+		{
+			await roleManager.CreateAsync(new IdentityRole(roleName));
+		}
+	}
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -84,7 +119,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
-app.UseCors("AllowVueClient");
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

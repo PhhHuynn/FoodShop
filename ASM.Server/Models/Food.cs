@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ASM.Server.Models
 {
@@ -8,6 +9,8 @@ namespace ASM.Server.Models
 		public int CategoryId { get; set; }
 		[ForeignKey(nameof(CategoryId))]
 		public Category? Category { get; set; }
-		public ICollection<ComboFood> ComboFoods { get; set; }
+
+		[JsonIgnore]
+		public ICollection<ComboFood>? ComboFoods { get; set; }
 	}
 }

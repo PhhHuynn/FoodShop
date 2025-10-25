@@ -12,47 +12,47 @@ namespace ASM.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ComboFoodsController : ControllerBase
+    public class OrdersController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public ComboFoodsController(AppDbContext context)
+        public OrdersController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/ComboFoods
+        // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ComboFood>>> GetComboFoods()
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.ComboFoods.ToListAsync();
+            return await _context.Orders.ToListAsync();
         }
 
-        // GET: api/ComboFoods/5
+        // GET: api/Orders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ComboFood>> GetComboFood(int id)
+        public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            var comboFood = await _context.ComboFoods.FindAsync(id);
+            var order = await _context.Orders.FindAsync(id);
 
-            if (comboFood == null)
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return comboFood;
+            return order;
         }
 
-        // PUT: api/ComboFoods/5
+        // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutComboFood(int id, ComboFood comboFood)
+        public async Task<IActionResult> PutOrder(int id, Order order)
         {
-            if (id != comboFood.Id)
+            if (id != order.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(comboFood).State = EntityState.Modified;
+            _context.Entry(order).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace ASM.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ComboFoodExists(id))
+                if (!OrderExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace ASM.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/ComboFoods
+        // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ComboFood>> PostComboFood(ComboFood comboFood)
+        public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-            _context.ComboFoods.Add(comboFood);
+            _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetComboFood", new { id = comboFood.Id }, comboFood);
+            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
         }
 
-        // DELETE: api/ComboFoods/5
+        // DELETE: api/Orders/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteComboFood(int id)
+        public async Task<IActionResult> DeleteOrder(int id)
         {
-            var comboFood = await _context.ComboFoods.FindAsync(id);
-            if (comboFood == null)
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
             {
                 return NotFound();
             }
 
-            _context.ComboFoods.Remove(comboFood);
+            _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ComboFoodExists(int id)
+        private bool OrderExists(int id)
         {
-            return _context.ComboFoods.Any(e => e.Id == id);
+            return _context.Orders.Any(e => e.Id == id);
         }
     }
 }

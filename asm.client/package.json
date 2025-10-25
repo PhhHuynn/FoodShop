@@ -15,7 +15,11 @@
     "lint": "eslint . --fix --cache"
   },
   "dependencies": {
-    "vue": "^3.5.22"
+    "axios": "^1.12.2",
+    "bootstrap": "^5.3.8",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",

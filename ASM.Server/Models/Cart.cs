@@ -9,9 +9,9 @@ namespace ASM.Server.Models
 
 		public string UserId { get; set; }
 		[ForeignKey(nameof(UserId))]
-		public AppUser User { get; set; }
+		public AppUser? User { get; set; }
 
-		public ICollection<CartDetail> CartDetails { get; set; }
+		public ICollection<CartDetail>? CartDetails { get; set; }
 	}
 
 	public enum CartStatus
