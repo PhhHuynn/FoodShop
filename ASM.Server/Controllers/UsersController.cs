@@ -115,6 +115,24 @@ namespace ASM.Server.Controllers
 					return BadRequest(passwordResult.Errors);
 				}
 			}
+			if (!string.IsNullOrEmpty(model.Role))
+			{
+				var currentRoles = await _userManager.GetRolesAsync(user);
+				var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+				if (!removeResult.Succeeded)
+				{
+					return BadRequest(removeResult.Errors);
+				}
+				var addResult = await _userManager.AddToRoleAsync(user, model.Role);
+				if (!addResult.Succeeded)
+				{
+					return BadRequest(addResult.Errors);
+				}
+			}
+
+			var updateResult = await _userManager.UpdateAsync(user);
+			if (!updateResult.Succeeded)
+				return BadRequest(updateResult.Errors);
 
 
 			return Ok(new { message = "User updated successfully." });

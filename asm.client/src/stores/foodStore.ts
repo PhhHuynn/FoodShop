@@ -1,6 +1,7 @@
-import { getFoods, type Food } from "@/api/foodService";
+import { getFoods } from "@/api/foodService";
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { type Food } from "@/types/food";
 
 export const useFoodStore = defineStore("food", () => {
   const foods = ref<Food[]>([]);
