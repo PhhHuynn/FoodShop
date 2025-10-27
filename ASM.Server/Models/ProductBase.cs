@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ASM.Server.Models
 {
@@ -14,6 +15,7 @@ namespace ASM.Server.Models
 		public string? ImageUrl { get; set; }
 		public bool IsAvailable { get; set; } = true;
 
+		[JsonIgnore]
 		public ICollection<OrderDetail>? OrderDetails { get; set; }
 	}
 }

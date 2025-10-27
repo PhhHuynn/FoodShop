@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ASM.Server.Data;
 using ASM.Server.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASM.Server.Controllers
 {
@@ -44,7 +45,7 @@ namespace ASM.Server.Controllers
 
         // PUT: api/Conversations/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+		[HttpPut("{id}")]
         public async Task<IActionResult> PutConversation(int id, Conversation conversation)
         {
             if (id != conversation.Id)
@@ -84,8 +85,9 @@ namespace ASM.Server.Controllers
             return CreatedAtAction("GetConversation", new { id = conversation.Id }, conversation);
         }
 
-        // DELETE: api/Conversations/5
-        [HttpDelete("{id}")]
+		// DELETE: api/Conversations/5
+		[Authorize(Policy = "SaleOrAdminPolicy")]
+		[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteConversation(int id)
         {
             var conversation = await _context.Conversations.FindAsync(id);

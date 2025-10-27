@@ -10,7 +10,7 @@
 
       <div class="mb-3">
         <label>Giá</label>
-        <input type="number" v-model.number="form.price" class="form-control" required />
+        <input type="number" v-model.number="form.price" min="0" class="form-control" required />
       </div>
 
       <div class="mb-3">

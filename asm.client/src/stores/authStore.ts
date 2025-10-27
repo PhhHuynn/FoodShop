@@ -1,5 +1,5 @@
-import { login, loginWithGoogle } from "@/api/authService";
-import { type AuthResponse, type LoginUser } from "@/types/user";
+import { login, loginWithGoogle, updateAccount } from "@/api/authService";
+import { type AccountUpdate, type AuthResponse, type LoginUser } from "@/types/user";
 import { jwtDecode } from "jwt-decode";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
@@ -60,6 +60,10 @@ export const useAuthStore = defineStore("auth", () => {
     return res;
   }
 
+  async function editAccount(account: AccountUpdate) {
+    await updateAccount(account.id, account);
+  }
+
   function logout() {
     clearSession();
   }
@@ -67,6 +71,7 @@ export const useAuthStore = defineStore("auth", () => {
   return {
     token,
     user,
+    editAccount,
     loginUser,
     loginGoogle,
     logout,

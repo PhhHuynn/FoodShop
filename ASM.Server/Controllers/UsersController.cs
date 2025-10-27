@@ -1,6 +1,7 @@
 ﻿using ASM.Server.DTOs;
 using ASM.Server.Models;
 using Google.Apis.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ namespace ASM.Server.Controllers
 
 		// GET: api/Users
 		[HttpGet]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> GetUsers()
 		{
 			var users = _userManager.Users.ToList();
@@ -76,6 +78,7 @@ namespace ASM.Server.Controllers
 
 		// POST: api/Users
 		[HttpPost]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> PostUser([FromBody] RegisterDto model)
 		{
 			var user = new AppUser
@@ -103,6 +106,7 @@ namespace ASM.Server.Controllers
 
 		// PATCH: api/Users/5
 		[HttpPatch("{id}")]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> PatchUser(string id, [FromBody] UserUpdateDto model)
 		{
 			var user = await _userManager.FindByIdAsync(id);
@@ -149,6 +153,7 @@ namespace ASM.Server.Controllers
 
 		// DELETE: api/Users/5
 		[HttpDelete("{id}")]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> DeleteUser(string id)
 		{
 			var user = await _userManager.FindByIdAsync(id);

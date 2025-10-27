@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
 	});
 });
 
-
+builder.Services.AddSignalR();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // DB
@@ -93,17 +93,16 @@ builder.Services.AddAuthorization(options =>
 {
 	options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
 	options.AddPolicy("UserPolicy", policy => policy.RequireRole("User"));
-	options.AddPolicy("SaleOrAdminPolicy", policy => policy.RequireRole("Sale", "Admin"));
 });
 
 var app = builder.Build();
 
-//app.MapHub<ChatHub>("/chathub");
+app.MapHub<ChatHub>("/chathub");
 
 using (var scope = app.Services.CreateScope())
 {
 	var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-	string[] roleNames = { "Admin", "User", "Sale" };
+	string[] roleNames = { "Admin", "User" };
 
 	foreach (var roleName in roleNames)
 	{

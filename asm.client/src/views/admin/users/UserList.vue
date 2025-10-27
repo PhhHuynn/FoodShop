@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import { RouterLink } from "vue-router";
 import type { User } from "@/types/user";

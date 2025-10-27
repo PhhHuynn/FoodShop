@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ASM.Server.Data;
+using ASM.Server.DTOs;
+using ASM.Server.Helpers;
+using ASM.Server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ASM.Server.Data;
-using ASM.Server.Models;
-using ASM.Server.DTOs;
-using ASM.Server.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ASM.Server.Controllers
 {
@@ -47,7 +48,8 @@ namespace ASM.Server.Controllers
         // PUT: api/Foods/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFood(int id, [FromBody] Food food)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> PutFood(int id, [FromBody] Food food)
         {
             if (id != food.Id)
             {
@@ -87,7 +89,8 @@ namespace ASM.Server.Controllers
         // POST: api/Foods
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Food>> PostFood([FromBody] Food newFood)
+		[Authorize(Roles = "Admin")]
+		public async Task<ActionResult<Food>> PostFood([FromBody] Food newFood)
         {
 			_context.Foods.Add(newFood);
             await _context.SaveChangesAsync();
@@ -97,7 +100,8 @@ namespace ASM.Server.Controllers
 
         // DELETE: api/Foods/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFood(int id)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> DeleteFood(int id)
         {
             var food = await _context.Foods.FindAsync(id);
             if (food == null)
@@ -112,6 +116,7 @@ namespace ASM.Server.Controllers
         }
 
 		[HttpPost("upload")]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> UploadImage(IFormFile file)
 		{
 			var imagePath = await FileHelper.SaveFileAsync(file, "uploads/foods");

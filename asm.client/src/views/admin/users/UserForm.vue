@@ -32,7 +32,6 @@
         <label>Role</label>
         <select v-model="form.role" class="form-control">
           <option :value="UserRole.Admin">Admin</option>
-          <option :value="UserRole.Sale">Sale</option>
           <option :value="UserRole.User">User</option>
         </select>
       </div>

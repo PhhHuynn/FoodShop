@@ -1,6 +1,6 @@
 <template>
   <div
-    style="height: calc(100vh - 70px)"
+    style="height: calc(100vh - 50px); margin-top: -70px"
     class="login-page d-flex justify-content-center align-items-center position-relative bg-light"
   >
     <!-- Decorative plates -->
@@ -38,7 +38,9 @@
         <div class="text-center text-muted mb-3">Hoặc</div>
         <GoogleLogin :callback="onGoogle" class="w-100" />
       </form>
-      <p class="text-center mt-3 mb-0 text-muted">Không có tài khoản? <a href="#">Đăng ký</a></p>
+      <p class="text-center mt-3 mb-0 text-muted">
+        Không có tài khoản? <RouterLink to="/signup">Đăng ký</RouterLink>
+      </p>
     </div>
   </div>
 </template>
@@ -60,7 +62,7 @@ async function onSubmit() {
     await authStore.loginUser({ email: email.value, password: password.value });
     email.value = "";
     password.value = "";
-    router.push("/home");
+    router.push("/");
   } catch (error) {
     console.error("Login failed:", error);
   }

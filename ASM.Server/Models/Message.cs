@@ -9,8 +9,7 @@ namespace ASM.Server.Models
 		public int Id { get; set; }
 
 		public string Content { get; set; }
-		public bool IsRead { get; set; }
-		public DateTime CreateAt { get; set; }
+		public DateTime CreateAt { get; set; } = DateTime.UtcNow;
 
 		public int ConversationId { get; set; }
 		public string SenderId { get; set; }

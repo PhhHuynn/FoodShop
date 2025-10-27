@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-light py-5">
+  <div class="bg-light py-5" style="margin-top: -70px">
     <div class="container">
       <div class="row align-items-center">
         <div class="col-md-6 text-center text-md-start mb-4 mb-md-0">
@@ -43,7 +43,7 @@
 
   <div class="container my-5">
     <div class="d-flex justify-content-center align-items-center mb-4">
-      <ul class="nav nav-underline mb-3">
+      <ul class="nav nav-underline me-4">
         <li class="nav-item">
           <a class="text-dark nav-link" href="#" @click.prevent="selectCategory('all')"> All </a>
         </li>
@@ -59,31 +59,41 @@
           </a>
         </li>
       </ul>
+
+      <button class="btn btn-sm btn-outline-secondary" @click="showFilter = !showFilter">
+        {{ showFilter ? "Ẩn bộ lọc" : "Bộ Lọc" }}
+      </button>
     </div>
 
     <div
       v-if="showFilter"
-      class="border rounded p-3 mb-4 shadow-sm bg-white"
-      style="position: absolute; z-index: 50"
+      class="border rounded p-3 mb-4 shadow-sm bg-white d-flex flex-wrap gap-3 align-items-end mx-auto"
+      style="max-width: 800px"
     >
-      <div class="mb-2">
-        <label>Tên:</label>
+      <div class="flex-grow-1" style="min-width: 150px">
+        <label for="filterNameInput" class="form-label mb-1">Tên:</label>
         <input
+          id="filterNameInput"
           v-model="filterName"
           class="form-control form-control-sm"
           placeholder="Tìm theo tên"
         />
       </div>
-      <div class="mb-2">
-        <label>Giá tối đa:</label>
+
+      <div class="flex-grow-1" style="min-width: 150px">
+        <label for="filterPriceInput" class="form-label mb-1">Giá tối đa:</label>
         <input
+          id="filterPriceInput"
           type="number"
           v-model.number="filterPrice"
           class="form-control form-control-sm"
           placeholder="Nhập giá tối đa"
         />
       </div>
-      <button class="btn btn-warning btn-sm mt-2" @click="applyFilter">Áp dụng</button>
+
+      <button class="btn btn-warning btn-sm" @click="applyFilter">Áp dụng</button>
+
+      <button class="btn btn-outline-secondary btn-sm" @click="clearFilter">Xóa Lọc</button>
     </div>
 
     <div class="row mt-4">
@@ -101,6 +111,15 @@ import { useFoodStore } from "@/stores/foodStore";
 import { useCategoryStore } from "@/stores/categoryStore";
 import type { Category } from "@/types/category";
 import { useComboStore } from "@/stores/comboStore";
+import type { Food } from "@/types/food";
+import type { Combo } from "@/types/combo";
+
+interface Item extends Food, Combo {
+  id: number;
+  name: string;
+  price: number;
+  isAvailable: boolean;
+}
 
 const foodStore = useFoodStore();
 const comboStore = useComboStore();
@@ -108,8 +127,13 @@ const categoryStore = useCategoryStore();
 
 const selectedCategory = ref<number | "all" | "combo">("all");
 const showFilter = ref(false);
+
 const filterName = ref("");
 const filterPrice = ref<number | null>(null);
+
+const appliedFilterName = ref("");
+const appliedFilterPrice = ref<number | null>(null);
+
 const categories = ref<Category[]>([]);
 
 onMounted(async () => {
@@ -124,18 +148,37 @@ const selectCategory = (cat: number | "all" | "combo") => {
   selectedCategory.value = cat;
 };
 
-const filteredItems = computed(() => {
-  if (selectedCategory.value === "all") {
-    return [...foodStore.foods, ...comboStore.comboes];
-  } else if (selectedCategory.value === "combo") {
-    return comboStore.comboes.filter((c) => c.isAvailable);
-  } else if (typeof selectedCategory.value === "number") {
-    return foodStore.foods.filter((f) => f.categoryId === selectedCategory.value);
-  }
-  return [];
-});
-
 const applyFilter = () => {
-  showFilter.value = false;
+  appliedFilterName.value = filterName.value;
+  appliedFilterPrice.value = filterPrice.value;
 };
+
+const clearFilter = () => {
+  filterName.value = "";
+  filterPrice.value = null;
+  applyFilter();
+};
+
+const filteredItems = computed<Item[]>(() => {
+  let items: Item[] = [];
+
+  if (selectedCategory.value === "all") {
+    items = [...foodStore.foods, ...comboStore.comboes] as Item[];
+  } else if (selectedCategory.value === "combo") {
+    items = comboStore.comboes as Item[];
+  } else if (typeof selectedCategory.value === "number") {
+    items = foodStore.foods.filter((f) => f.categoryId === selectedCategory.value) as Item[];
+  }
+
+  if (appliedFilterName.value) {
+    const nameFilter = appliedFilterName.value.toLowerCase();
+    items = items.filter((item) => item.name.toLowerCase().includes(nameFilter));
+  }
+
+  if (appliedFilterPrice.value !== null && appliedFilterPrice.value >= 0) {
+    items = items.filter((item) => item.price <= appliedFilterPrice.value!);
+  }
+
+  return items.filter((item) => item.isAvailable);
+});
 </script>

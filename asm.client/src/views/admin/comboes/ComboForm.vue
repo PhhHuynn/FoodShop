@@ -12,7 +12,7 @@
       <!-- Giá combo -->
       <div class="mb-3">
         <label>Giá combo</label>
-        <input type="number" v-model.number="form.price" class="form-control" required />
+        <input type="number" min="0" v-model.number="form.price" class="form-control" required />
       </div>
 
       <!-- Mô tả combo -->
@@ -28,7 +28,7 @@
           <div v-for="food in foodStore.foods" :key="food.id" class="col-12 col-sm-6 col-lg-4">
             <template v-if="comboFoodSelection[food.id]">
               <div class="p-2 border rounded-3 d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center flex-grow-1">
+                <div class="d-flex align-items-center">
                   <input
                     class="form-check-input me-2"
                     type="checkbox"

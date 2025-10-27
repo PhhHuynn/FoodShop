@@ -51,6 +51,7 @@ namespace ASM.Server.Controllers
 		// PUT: api/Comboes/5
 		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		[HttpPut("{id}")]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> PutCombo(int id, Combo combo)
 		{
 			if (id != combo.Id)
@@ -101,6 +102,7 @@ namespace ASM.Server.Controllers
 		}
 
 
+		[Authorize(Roles = "Admin")]
 		[HttpPost("upload")]
 		public async Task<IActionResult> UploadImage(IFormFile file)
 		{
@@ -111,6 +113,7 @@ namespace ASM.Server.Controllers
 		// POST: api/Comboes
 		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		[HttpPost]
+		[Authorize(Roles = "Admin")]
 		public async Task<ActionResult<Combo>> PostCombo(Combo combo)
         {
             _context.Combos.Add(combo);
@@ -121,7 +124,8 @@ namespace ASM.Server.Controllers
 
         // DELETE: api/Comboes/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCombo(int id)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> DeleteCombo(int id)
         {
             var combo = await _context.Combos.FindAsync(id);
             if (combo == null)

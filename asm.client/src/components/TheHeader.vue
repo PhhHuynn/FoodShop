@@ -49,6 +49,9 @@
               <li>
                 <router-link to="/dashboard" class="dropdown-item" href="#">My Profile</router-link>
               </li>
+              <li>
+                <router-link to="/orders" class="dropdown-item" href="#">Đơn hàng</router-link>
+              </li>
               <li><a class="dropdown-item" href="#" @click="logout">Logout</a></li>
             </ul>
           </div>
@@ -56,7 +59,7 @@
 
         <template v-else>
           <router-link to="/login" class="btn btn-outline-warning me-2">Đăng nhập</router-link>
-          <button class="btn btn-warning">Đăng ký</button>
+          <router-link to="/signup" class="btn btn-warning me-2">Đăng ký</router-link>
         </template>
       </div>
     </div>
@@ -149,14 +152,18 @@ import { useRouter } from "vue-router";
 import { ref, onMounted, computed } from "vue";
 import { useCartStore } from "@/stores/cartStore";
 import type { CartDetail } from "@/types/cart";
+import { useOrderStore } from "@/stores/orderStore";
+import { OrderStatus, type Order, type OrderDetail } from "@/types/order";
+
 const cartStore = useCartStore();
+const orderStore = useOrderStore();
 const auth = useAuthStore();
 const address = ref("");
 onMounted(async () => {
   if (auth.user) {
     await cartStore.fetchCart(auth.user?.id);
   }
-  console.log(cartStore.cart);
+  console.log(auth.userRole);
 });
 
 const router = useRouter();
@@ -178,9 +185,44 @@ async function checkout() {
     alert("Vui lòng nhập địa chỉ giao hàng!");
     return;
   }
-  await cartStore.checkOutCart();
-  alert("Đặt hàng thành công!");
-  address.value = "";
+  if (auth.user == null) {
+    return;
+  }
+
+  const orderDetails: OrderDetail[] = cartStore.cart?.cartDetails.map((item: CartDetail) => {
+    const price = item.food?.price || item.combo?.price || 0;
+    return {
+      foodId: item.foodId,
+      comboId: item.comboId,
+      quantity: item.quantity,
+      unitPrice: price,
+    };
+  });
+
+  const totalAmount = orderDetails.reduce(
+    (sum, detail) => sum + detail.quantity * detail.unitPrice,
+    0
+  );
+
+  const newOrder: Order = {
+    shippingAddress: address.value,
+    totalAmount: totalAmount,
+    status: OrderStatus.Pending,
+    userId: auth.user?.id,
+    orderDetails: orderDetails,
+  };
+  try {
+    await orderStore.addOrder(newOrder);
+    await cartStore.checkOutCart();
+
+    await cartStore.fetchCart(auth.user?.id);
+
+    alert("Đặt hàng thành công!");
+    address.value = "";
+  } catch (err) {
+    console.error("Lỗi đặt hàng:", err);
+    alert("Có lỗi xảy ra trong quá trình đặt hàng.");
+  }
 }
 
 async function removeItem(item: CartDetail) {

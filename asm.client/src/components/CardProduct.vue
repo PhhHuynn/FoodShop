@@ -42,7 +42,8 @@ async function addToCart(item: Food | Combo) {
           comboId: item.id,
           cartId: cartStore.cart.id,
         };
-        cartStore.addItem(cartDetail);
+        await cartStore.addItem(cartDetail);
+        await cartStore.fetchCart(authStore.user.id);
         alert("Thêm thành công");
       } else {
         const cartDetail: CartDetailCreate = {
@@ -50,10 +51,11 @@ async function addToCart(item: Food | Combo) {
           foodId: item.id,
           cartId: cartStore.cart.id,
         };
-        cartStore.addItem(cartDetail);
+        await cartStore.addItem(cartDetail);
         alert("Thêm thành công");
         await cartStore.fetchCart(authStore.user.id);
       }
+      console.log(cartStore.cart);
     }
   } else {
     router.push("/login");

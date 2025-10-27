@@ -5,15 +5,25 @@ export interface User {
   status: UserStatus;
   role: UserRole;
   fullName: string;
+
   address?: string;
 }
 
 export interface UserUpdate {
   id: string;
-
   email: string;
   status: UserStatus;
   role: UserRole;
+  fullName: string;
+  address?: string;
+}
+
+export interface AccountUpdate {
+  id: string;
+  email: string;
+  status: UserStatus;
+  newPassword?: string;
+  oldPassword?: string;
   fullName: string;
   address?: string;
 }
@@ -32,7 +42,6 @@ export enum UserStatus {
 
 export enum UserRole {
   Admin = "Admin",
-  Sale = "Sale",
   User = "User",
 }
 

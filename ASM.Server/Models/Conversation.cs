@@ -14,7 +14,7 @@ namespace ASM.Server.Models
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
 		public string CustomerId { get; set; }
-		public string EmployeeId { get; set; }
+		public string? EmployeeId { get; set; }
 
 		[ForeignKey(nameof(CustomerId))]
 		public AppUser? Customer { get; set; }

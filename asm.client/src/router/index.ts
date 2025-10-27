@@ -1,7 +1,10 @@
 import { useAuthStore } from "@/stores/authStore";
-import DashboardView from "@/views/admin/DashboardView.vue";
+import DashboardAdminView from "@/views/admin/DashboardAdminView.vue";
+import DashboardView from "@/views/DashboardView.vue";
 import HomeView from "@/views/HomeView.vue";
 import LogIn from "@/views/LogIn.vue";
+import OrdersView from "@/views/OrdersView.vue";
+import SignUp from "@/views/SignUp.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import "vue-router";
 
@@ -24,6 +27,11 @@ const routes = [
     component: LogIn,
   },
   {
+    path: "/signup",
+    name: "signup",
+    component: SignUp,
+  },
+  {
     path: "/dashboard",
     name: "dashboard",
     component: DashboardView,
@@ -32,9 +40,17 @@ const routes = [
     },
   },
   {
+    path: "/orders",
+    name: "orders",
+    component: OrdersView,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
     path: "/admin/dashboard",
     name: "dashboardAdmin",
-    component: DashboardView,
+    component: DashboardAdminView,
     meta: {
       requiresAuth: true,
       roles: ["Admin"],
@@ -47,6 +63,15 @@ const routes = [
       { path: "add", component: () => import("@/views/admin/foods/FoodForm.vue") },
       { path: "edit/:id", component: () => import("@/views/admin/foods/FoodForm.vue") },
       { path: ":id", component: () => import("@/views/admin/foods/FoodDetail.vue") },
+    ],
+    meta: { requiresAuth: true, roles: ["Admin"] },
+  },
+  {
+    path: "/admin/orders",
+    children: [
+      { path: "", component: () => import("@/views/admin/orders/OrderList.vue") },
+      { path: "edit/:id", component: () => import("@/views/admin/orders/OrderForm.vue") },
+      { path: ":id", component: () => import("@/views/admin/orders/OrderDetail.vue") },
     ],
     meta: { requiresAuth: true, roles: ["Admin"] },
   },

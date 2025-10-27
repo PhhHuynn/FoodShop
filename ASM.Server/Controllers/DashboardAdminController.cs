@@ -1,5 +1,6 @@
 ﻿using ASM.Server.Data;
 using ASM.Server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace ASM.Server.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> GetDashboardStats()
 		{
 			var totalUsers = await _context.Users.CountAsync();
