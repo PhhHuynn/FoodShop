@@ -23,14 +23,32 @@ namespace ASM.Server.Controllers
 			_userManager = userManager;
 		}
 
-		
+
 		// GET: api/Users
 		[HttpGet]
-		public IActionResult GetUsers()
+		public async Task<IActionResult> GetUsers()
 		{
 			var users = _userManager.Users.ToList();
-			return Ok(users);
+
+			var usersWithRoles = new List<object>();
+
+			foreach (var user in users)
+			{
+				var roles = await _userManager.GetRolesAsync(user);
+				usersWithRoles.Add(new
+				{
+					user.Id,
+					user.Email,
+					user.FullName,
+					user.Address,
+					user.Status,
+					Role = roles.FirstOrDefault()
+				});
+			}
+
+			return Ok(usersWithRoles);
 		}
+
 
 		// GET: api/Users/5
 		[HttpGet("{id}")]
@@ -38,11 +56,23 @@ namespace ASM.Server.Controllers
 		{
 			var user = await _userManager.FindByIdAsync(id);
 			if (user == null)
-			{
 				return NotFound();
-			}
-			return Ok(user);
+
+			var roles = await _userManager.GetRolesAsync(user);
+
+			var userWithRole = new
+			{
+				user.Id,
+				user.Email,
+				user.FullName,
+				user.Address,
+				user.Status,
+				Role = roles.FirstOrDefault()
+			};
+
+			return Ok(userWithRole);
 		}
+
 
 		// POST: api/Users
 		[HttpPost]
@@ -73,7 +103,7 @@ namespace ASM.Server.Controllers
 
 		// PATCH: api/Users/5
 		[HttpPatch("{id}")]
-		public async Task<IActionResult> PatchUser(string id, [FromBody] UpdateUserDto model)
+		public async Task<IActionResult> PatchUser(string id, [FromBody] UserUpdateDto model)
 		{
 			var user = await _userManager.FindByIdAsync(id);
 			if (user == null)
@@ -92,29 +122,6 @@ namespace ASM.Server.Controllers
 			if (!result.Succeeded)
 				return BadRequest(result.Errors);
 
-			if (!string.IsNullOrEmpty(model.NewPassword))
-			{
-				var hasPasword = await _userManager.HasPasswordAsync(user);
-				IdentityResult passwordResult;
-
-				if(hasPasword)
-				{
-					if(string.IsNullOrEmpty(model.OldPassword))
-					{
-						return BadRequest(new { message = "Old password is required to change the password." });
-					}
-					passwordResult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
-				}
-				else
-				{
-					passwordResult = await _userManager.AddPasswordAsync(user, model.NewPassword);
-				}
-
-				if (!passwordResult.Succeeded)
-				{
-					return BadRequest(passwordResult.Errors);
-				}
-			}
 			if (!string.IsNullOrEmpty(model.Role))
 			{
 				var currentRoles = await _userManager.GetRolesAsync(user);

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-light py-5 my-4">
+  <div class="bg-light py-5">
     <div class="container">
       <div class="row align-items-center">
         <div class="col-md-6 text-center text-md-start mb-4 mb-md-0">
@@ -42,41 +42,100 @@
   </div>
 
   <div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="text-warning-custom mb-0">Special Combos</h2>
-      <RouterLink to="/menu?isCombo=true" class="text-decoration-none text-warning fw-semibold">
-        Xem thêm →
-      </RouterLink>
-      <div class="row col-4"></div>
+    <div class="d-flex justify-content-center align-items-center mb-4">
+      <ul class="nav nav-underline mb-3">
+        <li class="nav-item">
+          <a class="text-dark nav-link" href="#" @click.prevent="selectCategory('all')"> All </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="text-dark nav-link" href="#" @click.prevent="selectCategory('combo')">
+            Combo
+          </a>
+        </li>
+        <li class="nav-item" v-for="cat in categories" :key="cat.id">
+          <a class="text-dark nav-link" href="#" @click.prevent="selectCategory(cat.id)">
+            {{ cat.name }}
+          </a>
+        </li>
+      </ul>
     </div>
-    <div class="container my-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-warning-custom mb-0">Our Products</h2>
-        <RouterLink to="/menu" class="text-decoration-none text-warning fw-semibold">
-          Xem thêm →
-        </RouterLink>
+
+    <div
+      v-if="showFilter"
+      class="border rounded p-3 mb-4 shadow-sm bg-white"
+      style="position: absolute; z-index: 50"
+    >
+      <div class="mb-2">
+        <label>Tên:</label>
+        <input
+          v-model="filterName"
+          class="form-control form-control-sm"
+          placeholder="Tìm theo tên"
+        />
       </div>
-      <div class="row">
-        <div class="row">
-          <div v-for="food in foods" :key="food.id" class="col-6 col-md-3 mb-4">
-            <CardProduct :food="food" />
-          </div>
-        </div>
+      <div class="mb-2">
+        <label>Giá tối đa:</label>
+        <input
+          type="number"
+          v-model.number="filterPrice"
+          class="form-control form-control-sm"
+          placeholder="Nhập giá tối đa"
+        />
+      </div>
+      <button class="btn btn-warning btn-sm mt-2" @click="applyFilter">Áp dụng</button>
+    </div>
+
+    <div class="row mt-4">
+      <div v-for="item in filteredItems" :key="item.id" class="col-6 col-md-3 mb-4">
+        <CardProduct :item="item" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
 import CardProduct from "@/components/CardProduct.vue";
 import { useFoodStore } from "@/stores/foodStore";
-import { onMounted, computed } from "vue";
+import { useCategoryStore } from "@/stores/categoryStore";
+import type { Category } from "@/types/category";
+import { useComboStore } from "@/stores/comboStore";
 
 const foodStore = useFoodStore();
+const comboStore = useComboStore();
+const categoryStore = useCategoryStore();
 
-const foods = computed(() => foodStore.foods);
+const selectedCategory = ref<number | "all" | "combo">("all");
+const showFilter = ref(false);
+const filterName = ref("");
+const filterPrice = ref<number | null>(null);
+const categories = ref<Category[]>([]);
 
 onMounted(async () => {
-  foodStore.fetchFoods();
+  await categoryStore.fetchCategories();
+  categories.value = categoryStore.categories;
+
+  await foodStore.fetchFoods();
+  await comboStore.fetchComboes();
 });
+
+const selectCategory = (cat: number | "all" | "combo") => {
+  selectedCategory.value = cat;
+};
+
+const filteredItems = computed(() => {
+  if (selectedCategory.value === "all") {
+    return [...foodStore.foods, ...comboStore.comboes];
+  } else if (selectedCategory.value === "combo") {
+    return comboStore.comboes.filter((c) => c.isAvailable);
+  } else if (typeof selectedCategory.value === "number") {
+    return foodStore.foods.filter((f) => f.categoryId === selectedCategory.value);
+  }
+  return [];
+});
+
+const applyFilter = () => {
+  showFilter.value = false;
+};
 </script>

@@ -1,5 +1,34 @@
 @import "./base.css";
 
-/* :root {
-  --bs-primary-rgb: 255, 107, 53 !important;
-} */
+.btn-warning {
+  --bs-btn-color: #fff; /* chữ bình thường */
+  --bs-btn-bg: #e0a800; /* nền vàng vừa */
+  --bs-btn-border-color: #e0a800;
+  --bs-btn-hover-color: #fff; /* chữ trắng khi hover */
+  --bs-btn-hover-bg: #d39e00; /* hover nền tối hơn */
+  --bs-btn-hover-border-color: #d39e00;
+  --bs-btn-focus-shadow-rgb: 211, 158, 0;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #d39e00;
+  --bs-btn-active-border-color: #d39e00;
+  --bs-btn-disabled-color: #000;
+  --bs-btn-disabled-bg: #e0a800;
+  --bs-btn-disabled-border-color: #e0a800;
+}
+
+/* Outline đồng bộ */
+.btn-outline-warning {
+  --bs-btn-color: #e0a800;
+  --bs-btn-border-color: #e0a800;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #d39e00;
+  --bs-btn-hover-border-color: #d39e00;
+  --bs-btn-focus-shadow-rgb: 211, 158, 0;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #d39e00;
+  --bs-btn-active-border-color: #d39e00;
+  --bs-btn-disabled-color: #e0a800;
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: #e0a800;
+  --bs-gradient: none;
+}

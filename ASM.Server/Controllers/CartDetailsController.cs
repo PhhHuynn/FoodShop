@@ -73,19 +73,55 @@ namespace ASM.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/CartDetails
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<CartDetail>> PostCartDetail(CartDetail cartDetail)
-        {
-            _context.CartDetails.Add(cartDetail);
-            await _context.SaveChangesAsync();
+		// POST: api/CartDetails
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPost]
+		public async Task<ActionResult<CartDetail>> PostCartDetail(CartDetail cartDetail)
+		{
+			var isFoodItem = cartDetail.FoodId.HasValue && cartDetail.FoodId.Value > 0;
+			var isComboItem = cartDetail.ComboId.HasValue && cartDetail.ComboId.Value > 0;
 
-            return CreatedAtAction("GetCartDetail", new { id = cartDetail.Id }, cartDetail);
-        }
+			if (!isFoodItem && !isComboItem)
+			{
+				return BadRequest("Phải có FoodId hoặc ComboId.");
+			}
+			CartDetail existingCartDetail = null;
 
-        // DELETE: api/CartDetails/5
-        [HttpDelete("{id}")]
+			if (isFoodItem)
+			{
+				existingCartDetail = await _context.CartDetails
+					.FirstOrDefaultAsync(cd =>
+						cd.FoodId == cartDetail.FoodId &&
+						cd.CartId == cartDetail.CartId);
+			}
+			else if (isComboItem) 
+			{
+				existingCartDetail = await _context.CartDetails
+					.FirstOrDefaultAsync(cd =>
+						cd.ComboId == cartDetail.ComboId &&
+						cd.CartId == cartDetail.CartId);
+			}
+
+			if (existingCartDetail != null)
+			{
+				existingCartDetail.Quantity += cartDetail.Quantity;
+
+				_context.CartDetails.Update(existingCartDetail);
+				await _context.SaveChangesAsync();
+
+				return Ok(existingCartDetail);
+			}
+			else
+			{
+				_context.CartDetails.Add(cartDetail);
+				await _context.SaveChangesAsync();
+
+				return CreatedAtAction("GetCartDetail", new { id = cartDetail.Id }, cartDetail);
+			}
+		}
+
+		// DELETE: api/CartDetails/5
+		[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCartDetail(int id)
         {
             var cartDetail = await _context.CartDetails.FindAsync(id);

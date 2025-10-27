@@ -48,7 +48,9 @@ namespace ASM.Server.Controllers
 		{
 			var cart = await _context.Carts
 				.Include(c => c.CartDetails)
-				.ThenInclude(cd => cd.Food)
+				    .ThenInclude(cd => cd.Food)
+				.Include(c => c.CartDetails)
+				    .ThenInclude(cd => cd.Combo)
 				.FirstOrDefaultAsync(c => c.UserId == userId && c.Status == CartStatus.Active);
 
 			if (cart == null)

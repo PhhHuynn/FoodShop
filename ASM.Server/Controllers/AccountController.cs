@@ -162,7 +162,7 @@ namespace ASM.Server.Controllers
 
 		// PATCH: api/account/5
 		[HttpPatch("{id}")]
-		public async Task<IActionResult> PatchAccount(string id, [FromBody] UpdateUserDto model)
+		public async Task<IActionResult> PatchAccount(string id, [FromBody] AccountUpdateDto model)
 		{
 			var user = await _userManager.FindByIdAsync(id);
 			if (user == null)

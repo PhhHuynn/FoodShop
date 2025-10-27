@@ -6,8 +6,13 @@ export async function getFoods(): Promise<Food[]> {
   return res.data;
 }
 
-export async function createFood(food: Food): Promise<Food[]> {
-  const res = await api.post<Food[]>("/foods", food);
+export async function getFood(id: number): Promise<Food> {
+  const res = await api.get<Food>(`/foods/${id}`);
+  return res.data;
+}
+
+export async function createFood(food: Omit<Food, "id">): Promise<Food> {
+  const res = await api.post<Food>("/foods", food);
   return res.data;
 }
 
@@ -17,4 +22,13 @@ export async function updateFood(id: number, food: Food): Promise<void> {
 
 export async function deleteFood(id: number): Promise<void> {
   await api.delete(`/foods/${id}`);
+}
+
+export async function uploadImageToServer(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await api.post("/foods/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data.imageUrl;
 }

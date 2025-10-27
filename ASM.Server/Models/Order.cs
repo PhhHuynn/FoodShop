@@ -22,10 +22,8 @@ namespace ASM.Server.Models
 
 	public enum OrderStatus
 	{
-		Pending = 1, // nhấn đặt hàng nhưng chưa thanh toán hoặc chưa xác nhận
-		Confirmed = 2, // đã xác nhận đang làm món
-		Delivering = 3, // đang giao hàng
-		Completed = 4,
-		Cancelled = 5
+		Pending = 1, // làm món
+		Shipping = 2, // đang giao hàng
+		Delivered = 3, // đã giao
 	}
 }

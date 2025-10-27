@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ASM.Server.Data;
 using ASM.Server.Models;
+using ASM.Server.DTOs;
+using ASM.Server.Helpers;
 
 namespace ASM.Server.Controllers
 {
@@ -45,16 +47,25 @@ namespace ASM.Server.Controllers
         // PUT: api/Foods/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFood(int id, Food food)
+        public async Task<IActionResult> PutFood(int id, [FromBody] Food food)
         {
             if (id != food.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(food).State = EntityState.Modified;
+            var foodToUpdate = await _context.Foods.FindAsync(id);
+            if (foodToUpdate == null)
+            {
+                return NotFound();
+			}
 
-            try
+            foodToUpdate.Name = food.Name;
+            foodToUpdate.Price = food.Price;
+            foodToUpdate.Description = food.Description;
+            foodToUpdate.ImageUrl = food.ImageUrl;
+
+			try
             {
                 await _context.SaveChangesAsync();
             }
@@ -76,12 +87,12 @@ namespace ASM.Server.Controllers
         // POST: api/Foods
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Food>> PostFood(Food food)
+        public async Task<ActionResult<Food>> PostFood([FromBody] Food newFood)
         {
-            _context.Foods.Add(food);
+			_context.Foods.Add(newFood);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetFood", new { id = food.Id }, food);
+            return CreatedAtAction("GetFood", new { id = newFood.Id }, newFood);
         }
 
         // DELETE: api/Foods/5
@@ -100,7 +111,14 @@ namespace ASM.Server.Controllers
             return NoContent();
         }
 
-        private bool FoodExists(int id)
+		[HttpPost("upload")]
+		public async Task<IActionResult> UploadImage(IFormFile file)
+		{
+			var imagePath = await FileHelper.SaveFileAsync(file, "uploads/foods");
+			return Ok(new { imageUrl = imagePath });
+		}
+
+		private bool FoodExists(int id)
         {
             return _context.Foods.Any(e => e.Id == id);
         }

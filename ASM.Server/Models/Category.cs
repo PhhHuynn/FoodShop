@@ -8,6 +8,6 @@ namespace ASM.Server.Models
 
 		public string Name { get; set; }
 
-		public ICollection<Food> Foods { get; set; }
+		public ICollection<Food>? Foods { get; set; }
 	}
 }

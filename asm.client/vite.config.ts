@@ -1,10 +1,18 @@
 import { defineConfig } from "vite";
-import plugin from "@vitejs/plugin-vue";
+import vue from "@vitejs/plugin-vue";
 import { fileURLToPath, URL } from "node:url";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [plugin()],
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag === "lord-icon",
+        },
+      },
+    }),
+  ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

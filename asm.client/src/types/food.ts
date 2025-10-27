@@ -4,4 +4,6 @@ export interface Food {
   price: number;
   description: string;
   imageUrl: string;
+  categoryId: number;
+  isAvailable: boolean;
 }

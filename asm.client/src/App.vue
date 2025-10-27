@@ -4,5 +4,6 @@ import TheHeader from "./components/TheHeader.vue";
 
 <template>
   <TheHeader />
+  <div style="height: 70px" class="mb-5"></div>
   <router-view />
 </template>

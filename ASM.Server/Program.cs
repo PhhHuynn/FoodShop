@@ -16,6 +16,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
 // COR
 builder.Services.AddCors(options =>
 {
@@ -112,6 +114,9 @@ using (var scope = app.Services.CreateScope())
 		}
 	}
 }
+
+app.UseStaticFiles();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

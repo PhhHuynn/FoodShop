@@ -1,6 +1,7 @@
 <template>
   <div
-    class="login-page d-flex justify-content-center align-items-center vh-100 position-relative bg-light"
+    style="height: calc(100vh - 70px)"
+    class="login-page d-flex justify-content-center align-items-center position-relative bg-light"
   >
     <!-- Decorative plates -->
     <img src="/img/login-1.png" alt="food plate" class="plate plate-left position-absolute" />
@@ -33,7 +34,7 @@
             placeholder="••••••••"
           />
         </div>
-        <button type="submit" class="btn btn-primary w-100 mb-3">Đăng nhập</button>
+        <button type="submit" class="btn btn-warning w-100 mb-3">Đăng nhập</button>
         <div class="text-center text-muted mb-3">Hoặc</div>
         <GoogleLogin :callback="onGoogle" class="w-100" />
       </form>
