@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/stores/authStore";
+import ChatAdmin from "@/views/admin/ChatAdmin.vue";
 import DashboardAdminView from "@/views/admin/DashboardAdminView.vue";
 import DashboardView from "@/views/DashboardView.vue";
 import HomeView from "@/views/HomeView.vue";
@@ -51,6 +52,15 @@ const routes = [
     path: "/admin/dashboard",
     name: "dashboardAdmin",
     component: DashboardAdminView,
+    meta: {
+      requiresAuth: true,
+      roles: ["Admin"],
+    },
+  },
+  {
+    path: "/admin/chat",
+    name: "chatAdmin",
+    component: ChatAdmin,
     meta: {
       requiresAuth: true,
       roles: ["Admin"],

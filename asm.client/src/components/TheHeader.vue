@@ -1,7 +1,7 @@
 <template>
   <nav
-    class="navbar navbar-expand-lg border-bottom position-fixed top-0 start-0 end-0 z-2 bg-white"
-    style="height: 70px"
+    class="navbar navbar-expand-lg border-bottom position-fixed top-0 start-0 end-0 bg-white"
+    style="height: 70px; z-index: 100"
   >
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="/">

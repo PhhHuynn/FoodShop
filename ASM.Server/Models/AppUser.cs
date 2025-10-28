@@ -13,7 +13,9 @@ namespace ASM.Server.Models
 		public ICollection<Order> Orders { get; set; }
 		[JsonIgnore]
 		public ICollection<Message> Messages { get; set; }
+		[JsonIgnore]
 		public ICollection<Conversation> CustomerConversations { get; set; }
+		[JsonIgnore]
 		public ICollection<Conversation> EmployeeConversations { get; set; }
 	}
 

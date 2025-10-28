@@ -26,9 +26,8 @@ export interface Conversation {
   id: number;
   name?: string;
   status: ConversationStatus;
-  createdAt: string;
   customerId: string;
-  employeeId: string;
+  employeeId?: string;
   customer?: User;
   employee?: User;
   messages?: Message[];

@@ -1,4 +1,5 @@
 ﻿using ASM.Server.Data;
+using ASM.Server.DTOs;
 using ASM.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ namespace ASM.Server.Controllers
 
 		// POST: api/Messages/send
 		[HttpPost("send")]
-		public async Task<IActionResult> SendMessage([FromBody] Message message)
+		public async Task<IActionResult> SendMessage([FromBody] MessageCreateDto message)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
@@ -28,7 +29,15 @@ namespace ASM.Server.Controllers
 			if (!exists)
 				return NotFound(new { error = "Conversation not found." });
 
-			_context.Messages.Add(message);
+			var newMessage = new Message()
+			{
+				Content = message.Content,
+				ConversationId = message.ConversationId,
+				SenderId = message.SenderId,
+
+			};
+
+			_context.Messages.Add(newMessage);
 			await _context.SaveChangesAsync();
 
 			return CreatedAtAction(nameof(GetMessages),
@@ -42,7 +51,6 @@ namespace ASM.Server.Controllers
 		{
 			var messages = await _context.Messages
 				.Where(m => m.ConversationId == conversationId)
-				.Include(m => m.Sender) 
 				.OrderBy(m => m.CreateAt)
 				.ToListAsync();
 

@@ -15,6 +15,9 @@
   --bs-btn-disabled-bg: #e0a800;
   --bs-btn-disabled-border-color: #e0a800;
 }
+.bg-warning {
+  background-color: #e0a800 !important;
+}
 
 /* Outline đồng bộ */
 .btn-outline-warning {

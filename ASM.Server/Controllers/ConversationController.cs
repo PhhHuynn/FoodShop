@@ -26,7 +26,7 @@ namespace ASM.Server.Controllers
 		[HttpGet]
         public async Task<ActionResult<IEnumerable<Conversation>>> GetConversations()
         {
-            return await _context.Conversations.ToListAsync();
+            return await _context.Conversations.Include(c => c.Customer).Include(c => c.Messages).ToListAsync();
         }
 
         // GET: api/Conversations/5

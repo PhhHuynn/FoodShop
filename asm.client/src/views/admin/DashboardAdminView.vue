@@ -2,169 +2,104 @@
   <h1 class="my-5 fw-bold text-center">Admin Dashboard</h1>
 
   <div class="container py-3 my-3" id="dashboard">
-    <div class="row g-4">
-      <div class="col-12 col-lg-8 d-flex flex-wrap gap-4 justify-content-center">
-        <div
-          class="dashboard-card p-4"
-          style="
-            flex: 1 1 320px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-          "
-        >
-          <h6 class="text-uppercase fw-semibold mb-2" style="letter-spacing: 1.2px">
-            Tổng số tài khoản người dùng
-          </h6>
+    <div class="row g-4 justify-content-center">
+      <!-- Hàng 1 -->
+      <div class="col-12 col-lg-3">
+        <div class="dashboard-card card-blue">
+          <h6 class="title">Tổng số tài khoản</h6>
           <p class="display-4 fw-bold mb-0">{{ dashboardData.totalUsers }}</p>
-          <router-link
-            to="/admin/users"
-            class="mt-3 btn btn-light btn-sm fw-semibold d-inline-flex align-items-center gap-2"
-            style="border-radius: 12px; color: #222"
-          >
+          <router-link to="/admin/users" class="dashboard-btn">
             Quản lý tài khoản
             <lord-icon
+              target=".dashboard-btn"
               src="https://cdn.lordicon.com/dygfbwwx.json"
-              target=".btn"
               trigger="hover"
-              style="width: 20px; height: 20px; --lord-icon-primary: #667eea"
-            >
-            </lord-icon>
-          </router-link>
-        </div>
-
-        <div
-          class="dashboard-card p-4"
-          style="
-            flex: 1 1 320px;
-            background: linear-gradient(135deg, #f6d365, #fda085);
-            color: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(253, 160, 133, 0.3);
-          "
-        >
-          <h6 class="text-uppercase fw-semibold mb-2" style="letter-spacing: 1.2px">
-            Tổng số loại món ăn nhanh
-          </h6>
-          <p class="display-4 fw-bold mb-0">{{ dashboardData.totalFoods }}</p>
-          <router-link
-            to="/admin/foods"
-            class="mt-3 btn btn-light btn-sm fw-semibold d-inline-flex align-items-center gap-2"
-            style="border-radius: 12px; color: #222"
-          >
-            Quản lý món ăn nhanh
-            <lord-icon
-              src="https://cdn.lordicon.com/hlejxoqz.json"
-              target=".btn"
-              trigger="hover"
-              style="width: 20px; height: 20px; --lord-icon-primary: #f6d365"
-            >
-            </lord-icon>
-          </router-link>
-        </div>
-
-        <div
-          class="dashboard-card p-4"
-          style="
-            flex: 1 1 320px;
-            background: linear-gradient(135deg, #ff758c, #ff7eb3);
-            color: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(24, 90, 157, 0.3);
-          "
-        >
-          <h6 class="text-uppercase fw-semibold mb-2" style="letter-spacing: 1.2px">
-            Tổng số combo
-          </h6>
-          <p class="display-4 fw-bold mb-0">{{ dashboardData.totalCombos }}</p>
-          <router-link
-            to="/admin/comboes"
-            class="mt-3 btn btn-light btn-sm fw-semibold d-inline-flex align-items-center gap-2"
-            style="border-radius: 12px; color: #222"
-          >
-            Quản lý combo
-            <lord-icon
-              src="https://cdn.lordicon.com/efxgwrkc.json"
-              target=".btn"
-              trigger="hover"
-              style="width: 20px; height: 20px; --lord-icon-primary: #ff758c"
-            >
-            </lord-icon>
-          </router-link>
-        </div>
-
-        <div
-          class="dashboard-card p-4"
-          style="
-            flex: 1 1 320px;
-            background: linear-gradient(135deg, #43cea2, #185a9d);
-            color: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(24, 90, 157, 0.3);
-          "
-        >
-          <h6 class="text-uppercase fw-semibold mb-2" style="letter-spacing: 1.2px">
-            Tổng số loại sản phẩm
-          </h6>
-          <p class="display-4 fw-bold mb-0">{{ dashboardData.totalCategories }}</p>
-          <router-link
-            to="/admin/categories"
-            class="mt-3 btn btn-light btn-sm fw-semibold d-inline-flex align-items-center gap-2"
-            style="border-radius: 12px; color: #222"
-          >
-            Quản lý loại sản phẩm
-            <lord-icon
-              src="https://cdn.lordicon.com/dutqakce.json"
-              target=".btn"
-              trigger="hover"
-              style="width: 20px; height: 20px; --lord-icon-primary: #43cea2"
-            >
-            </lord-icon>
+            ></lord-icon>
           </router-link>
         </div>
       </div>
 
-      <div class="col-12 col-lg-4 d-flex align-items-start justify-content-center">
-        <div
-          class="dashboard-card p-4 w-100"
-          style="
-            background: #e6f4ea;
-            color: #326a35;
-            border-radius: 16px;
-            box-shadow: 0 8px 15px rgba(50, 168, 82, 0.3);
-          "
-        >
-          <h6 class="text-uppercase fw-semibold mb-3" style="letter-spacing: 1.2px">Đơn hàng</h6>
+      <div class="col-12 col-lg-3">
+        <div class="dashboard-card card-orange">
+          <h6 class="title">Tổng số loại món ăn</h6>
+          <p class="display-4 fw-bold mb-0">{{ dashboardData.totalFoods }}</p>
+          <router-link to="/admin/foods" class="dashboard-btn">
+            Quản lý món ăn nhanh
+            <lord-icon
+              target=".dashboard-btn"
+              src="https://cdn.lordicon.com/hlejxoqz.json"
+              trigger="hover"
+            ></lord-icon>
+          </router-link>
+        </div>
+      </div>
 
+      <div class="col-12 col-lg-3">
+        <div class="dashboard-card card-pink">
+          <h6 class="title">Tổng số combo</h6>
+          <p class="display-4 fw-bold mb-0">{{ dashboardData.totalCombos }}</p>
+          <router-link to="/admin/comboes" class="dashboard-btn">
+            Quản lý combo
+            <lord-icon
+              target=".dashboard-btn"
+              src="https://cdn.lordicon.com/efxgwrkc.json"
+              trigger="hover"
+            ></lord-icon>
+          </router-link>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-3">
+        <div class="dashboard-card card-green">
+          <h6 class="title">Tổng số loại sản phẩm</h6>
+          <p class="display-4 fw-bold mb-0">{{ dashboardData.totalCategories }}</p>
+          <router-link to="/admin/categories" class="dashboard-btn">
+            Quản lý loại sản phẩm
+            <lord-icon
+              target=".dashboard-btn"
+              src="https://cdn.lordicon.com/dutqakce.json"
+              trigger="hover"
+            ></lord-icon>
+          </router-link>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="dashboard-card card-lightgreen">
+          <h6 class="title">Đơn hàng</h6>
           <div class="d-flex flex-column gap-2 mb-3">
-            <div class="p-3" style="background: rgba(255, 255, 255, 0.6); border-radius: 10px">
+            <div class="order-item">
               <div class="text-muted">Chưa giao</div>
               <div class="fw-bold fs-4">{{ dashboardData.orders.pending }}</div>
             </div>
-            <div class="p-3" style="background: rgba(255, 255, 255, 0.6); border-radius: 10px">
+            <div class="order-item">
               <div class="text-muted">Đang giao</div>
               <div class="fw-bold fs-4">{{ dashboardData.orders.shipping }}</div>
             </div>
-            <div class="p-3" style="background: rgba(255, 255, 255, 0.6); border-radius: 10px">
+            <div class="order-item">
               <div class="text-muted">Đã giao</div>
               <div class="fw-bold fs-4">{{ dashboardData.orders.delivered }}</div>
             </div>
           </div>
-
-          <router-link
-            to="/admin/orders"
-            class="mt-2 btn btn-light btn-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-2 w-100"
-            style="border-radius: 12px; color: #2a5934"
-          >
+          <router-link to="/admin/orders" class="dashboard-btn w-100">
             Xem tất cả đơn hàng
+            <lord-icon src="https://cdn.lordicon.com/euduggnx.json" trigger="hover"></lord-icon>
+          </router-link>
+        </div>
+      </div>
+
+      <!-- Mục Chat Support -->
+      <div class="col-12 col-lg-6">
+        <div class="dashboard-card card-purple">
+          <h6 class="title">Hỗ trợ khách hàng</h6>
+          <p class="fs-5 mb-3">Trò chuyện trực tiếp với khách hàng đang cần hỗ trợ</p>
+          <router-link to="/admin/chat" class="dashboard-btn w-100">
+            Tới trang chat hỗ trợ
             <lord-icon
-              src="https://cdn.lordicon.com/euduggnx.json"
+              target=".dashboard-btn"
+              src="https://cdn.lordicon.com/ayhtotha.json"
               trigger="hover"
-              target=".btn"
-              style="width: 20px; height: 20px; --lord-icon-primary: #326a35"
-            >
-            </lord-icon>
+            ></lord-icon>
           </router-link>
         </div>
       </div>
@@ -184,11 +119,7 @@ const dashboardData = ref<Dashboard>({
   totalFoods: 0,
   totalCombos: 0,
   totalCategories: 0,
-  orders: {
-    pending: 0,
-    shipping: 0,
-    delivered: 0,
-  },
+  orders: { pending: 0, shipping: 0, delivered: 0 },
 });
 
 const fetchDashboardData = async () => {
@@ -198,17 +129,69 @@ const fetchDashboardData = async () => {
   }
 };
 
-onMounted(() => {
-  fetchDashboardData();
-});
+onMounted(fetchDashboardData);
 </script>
 
-<style>
-#dashboard .btn:hover {
-  background-color: white;
+<style scoped>
+.dashboard-card {
+  padding: 1.8rem;
+  border-radius: 16px;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  height: 100%;
+}
+.title {
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  margin-bottom: 0.5rem;
+}
+.dashboard-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin-top: 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: #fff;
+  color: #222;
+  border-radius: 10px;
+  padding: 4px 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.dashboard-btn:hover {
+  background: #f8f8f8;
+  transform: translateY(-2px);
+}
+.dashboard-btn lord-icon {
+  width: 25px;
+  height: 25px;
+}
+.order-item {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  padding: 10px 14px;
 }
 
-lord-icon {
-  display: inline-block;
+.card-blue {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+.card-orange {
+  background: linear-gradient(135deg, #f6d365, #fda085);
+}
+.card-pink {
+  background: linear-gradient(135deg, #ff758c, #ff7eb3);
+}
+.card-green {
+  background: linear-gradient(135deg, #43cea2, #185a9d);
+}
+.card-lightgreen {
+  background: linear-gradient(135deg, #86b490, #4f7c54);
+  color: #2c5f53;
+}
+.card-purple {
+  background: linear-gradient(135deg, #9b7dbd, #6c4791);
 }
 </style>
