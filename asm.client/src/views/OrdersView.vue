@@ -7,7 +7,7 @@
       Bạn chưa có đơn hàng nào.
     </div>
 
-    <div v-else class="row gap-3">
+    <div v-else class="row">
       <div v-for="order in orders" :key="order.id" class="col-4 border shadow-sm rounded-5">
         <div class="py-4 px-3">
           <div class="d-flex justify-content-between align-items-center mb-2">

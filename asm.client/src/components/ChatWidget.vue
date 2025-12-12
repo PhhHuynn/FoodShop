@@ -67,12 +67,12 @@
             class="form-control"
             placeholder="Nhập tin nhắn..."
             v-model="messageText"
-            @keyup.enter="sendMessage"
+            @keyup.enter="sendMessageToAdmin"
             :disabled="!messageStore.currentConversation"
           />
           <button
             class="btn btn-warning text-white px-2"
-            @click="sendMessage"
+            @click="sendMessageToAdmin"
             :disabled="!messageText.trim() || !messageStore.currentConversation"
           >
             <i class="fa-solid fa-paper-plane"></i>
@@ -124,12 +124,15 @@ async function initConversation() {
   loading.value = false;
 }
 
-async function sendMessage() {
+async function sendMessageToAdmin() {
+  console.log("Mới nhận gửi");
   if (!messageText.value.trim() || !messageStore.currentConversation) return;
+  console.log("đang nhận gửi");
 
   await messageStore.sendMessage(customerId, messageText.value);
 
   messageText.value = "";
+  console.log("đã nhận gửi");
 }
 
 onMounted(() => {

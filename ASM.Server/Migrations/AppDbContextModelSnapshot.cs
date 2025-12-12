@@ -41,6 +41,9 @@ namespace ASM.Server.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -84,6 +87,9 @@ namespace ASM.Server.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -109,8 +115,8 @@ namespace ASM.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -134,10 +140,7 @@ namespace ASM.Server.Migrations
                     b.Property<int>("CartId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ComboId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FoodId")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -147,9 +150,7 @@ namespace ASM.Server.Migrations
 
                     b.HasIndex("CartId");
 
-                    b.HasIndex("ComboId");
-
-                    b.HasIndex("FoodId");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("CartDetails");
                 });
@@ -162,42 +163,22 @@ namespace ASM.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("ASM.Server.Models.Combo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Combos");
                 });
 
             modelBuilder.Entity("ASM.Server.Models.ComboFood", b =>
@@ -259,40 +240,6 @@ namespace ASM.Server.Migrations
                     b.ToTable("Conversations");
                 });
 
-            modelBuilder.Entity("ASM.Server.Models.Food", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("Foods");
-                });
-
             modelBuilder.Entity("ASM.Server.Models.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -335,6 +282,12 @@ namespace ASM.Server.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
+
                     b.Property<string>("ShippingAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -345,13 +298,21 @@ namespace ASM.Server.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("VoucherId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("VoucherId");
 
                     b.ToTable("Orders");
                 });
@@ -364,13 +325,10 @@ namespace ASM.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ComboId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FoodId")
-                        .HasColumnType("int");
-
                     b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -381,13 +339,146 @@ namespace ASM.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ComboId");
-
-                    b.HasIndex("FoodId");
-
                     b.HasIndex("OrderId");
 
+                    b.HasIndex("ProductId");
+
                     b.ToTable("OrderDetails");
+                });
+
+            modelBuilder.Entity("ASM.Server.Models.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ProductType")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Products");
+
+                    b.HasDiscriminator<string>("ProductType").HasValue("Product");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("ASM.Server.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductId1")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductId1");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("ASM.Server.Models.Voucher", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DiscountType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("DiscountValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UsageLimit")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsedCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Vouchers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -523,6 +614,25 @@ namespace ASM.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ASM.Server.Models.Combo", b =>
+                {
+                    b.HasBaseType("ASM.Server.Models.Product");
+
+                    b.HasDiscriminator().HasValue("Combo");
+                });
+
+            modelBuilder.Entity("ASM.Server.Models.Food", b =>
+                {
+                    b.HasBaseType("ASM.Server.Models.Product");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasDiscriminator().HasValue("Food");
+                });
+
             modelBuilder.Entity("ASM.Server.Models.Cart", b =>
                 {
                     b.HasOne("ASM.Server.Models.AppUser", "User")
@@ -542,19 +652,15 @@ namespace ASM.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ASM.Server.Models.Combo", "Combo")
+                    b.HasOne("ASM.Server.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ComboId");
-
-                    b.HasOne("ASM.Server.Models.Food", "Food")
-                        .WithMany()
-                        .HasForeignKey("FoodId");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Cart");
 
-                    b.Navigation("Combo");
-
-                    b.Navigation("Food");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ASM.Server.Models.ComboFood", b =>
@@ -562,13 +668,13 @@ namespace ASM.Server.Migrations
                     b.HasOne("ASM.Server.Models.Combo", "Combo")
                         .WithMany("ComboFoods")
                         .HasForeignKey("ComboId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ASM.Server.Models.Food", "Food")
                         .WithMany("ComboFoods")
                         .HasForeignKey("FoodId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Combo");
@@ -579,30 +685,19 @@ namespace ASM.Server.Migrations
             modelBuilder.Entity("ASM.Server.Models.Conversation", b =>
                 {
                     b.HasOne("ASM.Server.Models.AppUser", "Customer")
-                        .WithMany("CustomerConversations")
+                        .WithMany()
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ASM.Server.Models.AppUser", "Employee")
-                        .WithMany("EmployeeConversations")
+                        .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Customer");
 
                     b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("ASM.Server.Models.Food", b =>
-                {
-                    b.HasOne("ASM.Server.Models.Category", "Category")
-                        .WithMany("Foods")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("ASM.Server.Models.Message", b =>
@@ -614,9 +709,9 @@ namespace ASM.Server.Migrations
                         .IsRequired();
 
                     b.HasOne("ASM.Server.Models.AppUser", "Sender")
-                        .WithMany("Messages")
+                        .WithMany()
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -627,35 +722,61 @@ namespace ASM.Server.Migrations
             modelBuilder.Entity("ASM.Server.Models.Order", b =>
                 {
                     b.HasOne("ASM.Server.Models.AppUser", "User")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ASM.Server.Models.Voucher", "Voucher")
+                        .WithMany()
+                        .HasForeignKey("VoucherId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("User");
+
+                    b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("ASM.Server.Models.OrderDetail", b =>
                 {
-                    b.HasOne("ASM.Server.Models.Combo", "Combo")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("ComboId");
-
-                    b.HasOne("ASM.Server.Models.Food", "Food")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("FoodId");
-
                     b.HasOne("ASM.Server.Models.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Combo");
-
-                    b.Navigation("Food");
+                    b.HasOne("ASM.Server.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Order");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ASM.Server.Models.Review", b =>
+                {
+                    b.HasOne("ASM.Server.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ASM.Server.Models.Product", null)
+                        .WithMany("reviews")
+                        .HasForeignKey("ProductId1");
+
+                    b.HasOne("ASM.Server.Models.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -709,15 +830,15 @@ namespace ASM.Server.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ASM.Server.Models.AppUser", b =>
+            modelBuilder.Entity("ASM.Server.Models.Food", b =>
                 {
-                    b.Navigation("CustomerConversations");
+                    b.HasOne("ASM.Server.Models.Category", "Category")
+                        .WithMany("Foods")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("EmployeeConversations");
-
-                    b.Navigation("Messages");
-
-                    b.Navigation("Orders");
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("ASM.Server.Models.Cart", b =>
@@ -730,28 +851,29 @@ namespace ASM.Server.Migrations
                     b.Navigation("Foods");
                 });
 
-            modelBuilder.Entity("ASM.Server.Models.Combo", b =>
-                {
-                    b.Navigation("ComboFoods");
-
-                    b.Navigation("OrderDetails");
-                });
-
             modelBuilder.Entity("ASM.Server.Models.Conversation", b =>
                 {
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("ASM.Server.Models.Food", b =>
-                {
-                    b.Navigation("ComboFoods");
-
-                    b.Navigation("OrderDetails");
-                });
-
             modelBuilder.Entity("ASM.Server.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+                });
+
+            modelBuilder.Entity("ASM.Server.Models.Product", b =>
+                {
+                    b.Navigation("reviews");
+                });
+
+            modelBuilder.Entity("ASM.Server.Models.Combo", b =>
+                {
+                    b.Navigation("ComboFoods");
+                });
+
+            modelBuilder.Entity("ASM.Server.Models.Food", b =>
+                {
+                    b.Navigation("ComboFoods");
                 });
 #pragma warning restore 612, 618
         }

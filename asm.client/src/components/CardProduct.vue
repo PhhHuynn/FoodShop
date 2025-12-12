@@ -4,7 +4,7 @@
       :src="`https://localhost:7108/${item.imageUrl}`"
       class="card-img-top object-fit-cover"
       :alt="item.name"
-      style="height: 300px"
+      style="height: 250px"
     />
     <div class="card-body text-center d-flex flex-column justify-content-between gap-4">
       <div>

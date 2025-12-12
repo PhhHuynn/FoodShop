@@ -1,4 +1,4 @@
-@ASM.Server_HostAddress = http://localhost:5291
+@ASM.Server_HostAddress = http://localhost:5136
 
 GET {{ASM.Server_HostAddress}}/weatherforecast/
 Accept: application/json

@@ -2,8 +2,8 @@
 
 namespace ASM.Server.Models
 {
-	public class Combo : ProductBase
+	public class Combo : Product
 	{
-		public ICollection<ComboFood>? ComboFoods { get; set; }
+        public ICollection<ComboFood>? ComboFoods { get; set; }
 	}
 }

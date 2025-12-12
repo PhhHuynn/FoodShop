@@ -1,11 +1,12 @@
 using ASM.Server.Data;
+using ASM.Server.Hubs;
 using ASM.Server.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using ASM.Server.Hubs;
+using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,27 +15,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+	c.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" });
+	var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+	var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+	c.IncludeXmlComments(xmlPath);
+});
 
 
 
-// COR
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy("AllowFrontend", policy =>
-	{
+    options.AddPolicy("AllowVue", policy =>
+    {
 		policy.WithOrigins("http://localhost:59257")
-			  .AllowAnyHeader()
 			  .AllowAnyMethod()
+			  .AllowAnyHeader()
 			  .AllowCredentials();
-			
 	});
 });
 
 builder.Services.AddSignalR();
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// DB
+
+// Database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
 	options.UseSqlServer(connectionString)
 );
@@ -52,7 +58,6 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 // JWT
 var jwtSetting = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSetting["Key"]);
-
 builder.Services.AddAuthentication(options =>
 {
 	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -72,35 +77,14 @@ builder.Services.AddAuthentication(options =>
 	};
 })
 .AddGoogle(googleOptions =>
- {
-	 googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-	 googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
- });
-
-// CORS
-builder.Services.AddCors(options =>
 {
-	options.AddDefaultPolicy(policy =>
-	{
-		policy.WithOrigins("https://localhost:59257")
-			  .AllowAnyHeader()
-			  .AllowAnyMethod()
-			  .AllowCredentials();
-	});
-});
-
-
-// Policy
-builder.Services.AddAuthorization(options =>
-{
-	options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
-	options.AddPolicy("UserPolicy", policy => policy.RequireRole("User"));
+	googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+	googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
 
 var app = builder.Build();
 
-app.MapHub<ChatHub>("/chathub");
-
+// Seed roles
 using (var scope = app.Services.CreateScope())
 {
 	var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -116,21 +100,18 @@ using (var scope = app.Services.CreateScope())
 	}
 }
 
-app.UseStaticFiles();
-
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+	app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Lab1 API V1"));
 }
-app.UseCors("AllowFrontend");
-
+app.UseStaticFiles();
+app.MapHub<ChatHub>("/chathub");
 app.UseHttpsRedirection();
+app.UseCors("AllowVue");
 app.UseAuthentication();
-app.UseAuthorization(); 
-app.MapFallbackToFile("/index.html");
+app.UseAuthorization();
 
 app.MapControllers();
 

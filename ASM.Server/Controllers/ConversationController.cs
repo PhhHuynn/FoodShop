@@ -86,7 +86,6 @@ namespace ASM.Server.Controllers
         }
 
 		// DELETE: api/Conversations/5
-		[Authorize(Policy = "SaleOrAdminPolicy")]
 		[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteConversation(int id)
         {

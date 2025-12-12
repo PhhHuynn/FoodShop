@@ -1,5 +1,5 @@
 ﻿using ASM.Server.Data;
-using ASM.Server.DTOs;
+using ASM.Server.DTOs.MessageDtos;
 using ASM.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -53,9 +53,6 @@ namespace ASM.Server.Controllers
 				.Where(m => m.ConversationId == conversationId)
 				.OrderBy(m => m.CreateAt)
 				.ToListAsync();
-
-			if (!messages.Any())
-				return NotFound(new { message = "No messages found for this conversation." });
 
 			return Ok(messages);
 		}

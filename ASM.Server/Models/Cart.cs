@@ -5,7 +5,7 @@ namespace ASM.Server.Models
 	public class Cart
 	{
 		public int Id { get; set; }
-		public CartStatus Status { get; set; } = CartStatus.Active;
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
 		public string UserId { get; set; }
 		[ForeignKey(nameof(UserId))]
@@ -14,9 +14,4 @@ namespace ASM.Server.Models
 		public ICollection<CartDetail>? CartDetails { get; set; }
 	}
 
-	public enum CartStatus
-	{
-		Active = 1, // đang hoạt động
-		CheckedOut = 2, // đã thanh toán
-	}
 }

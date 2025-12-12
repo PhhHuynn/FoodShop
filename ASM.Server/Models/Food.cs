@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace ASM.Server.Models
 {
-	public class Food : ProductBase
+	public class Food : Product
 	{
 		public int CategoryId { get; set; }
 		[ForeignKey(nameof(CategoryId))]

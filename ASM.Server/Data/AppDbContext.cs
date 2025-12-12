@@ -1,5 +1,4 @@
 ﻿using ASM.Server.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +11,7 @@ namespace ASM.Server.Data
 
 		}
 
+		public DbSet<Product> Products { get; set; }
 		public DbSet<Category> Categories { get; set; }
 		public DbSet<Food> Foods { get; set; }
 		public DbSet<Combo> Combos { get; set; }
@@ -20,6 +20,8 @@ namespace ASM.Server.Data
 		public DbSet<OrderDetail> OrderDetails { get; set; }
 		public DbSet<Cart> Carts { get; set; }
 		public DbSet<CartDetail> CartDetails { get; set; }
+		public DbSet<Voucher> Vouchers { get; set; }
+		public DbSet<Review> Reviews { get; set; }
 		public DbSet<Conversation> Conversations { get; set; }
 		public DbSet<Message> Messages { get; set; }
 
@@ -27,18 +29,10 @@ namespace ASM.Server.Data
 		{
 			base.OnModelCreating(modelBuilder);
 
-			modelBuilder.Entity<Conversation>()
-				.HasOne(c => c.Customer)
-				.WithMany(u => u.CustomerConversations)
-				.HasForeignKey(c => c.CustomerId)
-				.OnDelete(DeleteBehavior.Restrict);
-
-
-			modelBuilder.Entity<Conversation>()
-				.HasOne(c => c.Employee)
-				.WithMany(u => u.EmployeeConversations)
-				.HasForeignKey(c => c.EmployeeId)
-				.OnDelete(DeleteBehavior.Restrict);
+			modelBuilder.Entity<Product>()
+				.HasDiscriminator<string>("ProductType")
+				.HasValue<Food>("Food")
+				.HasValue<Combo>("Combo");
 
 			modelBuilder.Entity<OrderDetail>()
 				.HasOne(d => d.Order)
@@ -53,9 +47,64 @@ namespace ASM.Server.Data
 				.OnDelete(DeleteBehavior.Cascade);
 
 			modelBuilder.Entity<ComboFood>()
-				.HasOne(d => d.Combo)
-				.WithMany(o => o.ComboFoods)
-				.HasForeignKey(d => d.ComboId)
+				.HasOne(cf => cf.Combo)
+				.WithMany(c => c.ComboFoods)
+				.HasForeignKey(cf => cf.ComboId)
+				.OnDelete(DeleteBehavior.Restrict); 
+
+			modelBuilder.Entity<ComboFood>()
+				.HasOne(cf => cf.Food)
+				.WithMany(f => f.ComboFoods)
+				.HasForeignKey(cf => cf.FoodId)
+				.OnDelete(DeleteBehavior.Restrict); 
+
+
+			modelBuilder.Entity<Category>()
+				.HasMany(c => c.Foods)
+				.WithOne(f => f.Category)
+				.HasForeignKey(f => f.CategoryId)
+				.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<Order>()
+				.HasOne(o => o.Voucher)
+				.WithMany()             
+				.HasForeignKey(o => o.VoucherId)
+				.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<Review>()
+				.HasOne(r => r.Product)
+				.WithMany()
+				.HasForeignKey(r => r.ProductId)
+				.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<Conversation>()
+				.HasMany(c => c.Messages)
+				.WithOne(m => m.Conversation)
+				.HasForeignKey(m => m.ConversationId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<Message>()
+				.HasOne(m => m.Sender)
+				.WithMany()
+				.HasForeignKey(m => m.SenderId)
+				.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<Conversation>()
+				.HasOne(c => c.Customer)
+				.WithMany()
+				.HasForeignKey(c => c.CustomerId)
+				.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<Conversation>()
+				.HasOne(c => c.Employee)
+				.WithMany()
+				.HasForeignKey(c => c.EmployeeId)
+				.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<Conversation>()
+				.HasMany(c => c.Messages)
+				.WithOne(m => m.Conversation)
+				.HasForeignKey(m => m.ConversationId)
 				.OnDelete(DeleteBehavior.Cascade);
 
 

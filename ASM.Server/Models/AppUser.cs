@@ -9,14 +9,8 @@ namespace ASM.Server.Models
 		public string FullName{ get; set; }
 		public UserStatus Status { get; set; } = UserStatus.Active;
 		public DateTime CreateAt { get; set; } = DateTime.UtcNow;
-
-		public ICollection<Order> Orders { get; set; }
-		[JsonIgnore]
-		public ICollection<Message> Messages { get; set; }
-		[JsonIgnore]
-		public ICollection<Conversation> CustomerConversations { get; set; }
-		[JsonIgnore]
-		public ICollection<Conversation> EmployeeConversations { get; set; }
+		public DateTime? UpdatedAt { get; set; }
+		public DateTime? DeletedAt { get; set; }
 	}
 
 	public enum UserStatus

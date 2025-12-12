@@ -1,0 +1,10 @@
+﻿namespace ASM.Server.Dtos.ReviewDtos
+{
+	public class ReviewCreateDto
+	{
+		public int ProductId { get; set; }
+		public string UserId { get; set; } = string.Empty;
+		public int Rating { get; set; }
+		public string Comment { get; set; } = string.Empty;
+	}
+}

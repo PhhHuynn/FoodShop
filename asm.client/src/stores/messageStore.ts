@@ -11,6 +11,7 @@ export const useMessageStore = defineStore("message", () => {
 
   async function loadMessages(conversationId: number) {
     currentConversation.value = conversationId;
+    console.log("Đang load message");
     try {
       messages.value = await getMessages(conversationId);
     } catch (err) {
@@ -20,14 +21,29 @@ export const useMessageStore = defineStore("message", () => {
   }
 
   async function sendMessage(senderId: string, content: string) {
-    const message: MessageCreate = {
-      conversationId: currentConversation.value!,
-      senderId,
-      content,
-    };
+    console.log("đang gửi");
+    try {
+      const message: MessageCreate = {
+        conversationId: currentConversation.value!,
+        senderId,
+        content,
+      };
 
-    await saveMessage(message);
-    await hubConnection.invoke("SendMessage", message.conversationId.toString(), senderId, content);
+      if (hubConnection.state !== HubConnectionState.Connected) {
+        await hubConnection.start();
+      }
+
+      await saveMessage(message);
+      await hubConnection.invoke(
+        "SendMessage",
+        message.conversationId.toString(),
+        senderId,
+        content
+      );
+      messages.value = await getMessages(currentConversation.value!);
+    } catch (err) {
+      console.error("Lỗi khi gửi message:", err);
+    }
   }
 
   function connectSignalR(conversationId: number) {

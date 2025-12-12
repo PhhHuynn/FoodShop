@@ -48,6 +48,7 @@ export const useConversationStore = defineStore("conversation", () => {
 
   async function editConversation(id: number, conversationData: Conversation) {
     try {
+      console.log(conversationData);
       await updateConversation(id, conversationData);
       const index = conversations.value.findIndex((f) => f.id === id);
       if (index !== -1) {

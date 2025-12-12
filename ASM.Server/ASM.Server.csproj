@@ -4,14 +4,13 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Google.Apis.Auth" Version="1.72.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.7" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="wwwroot\uploads\" />
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
 </Project>

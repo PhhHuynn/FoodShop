@@ -27,7 +27,7 @@ namespace ASM.Server.Models
 
 	public enum ConversationStatus
 	{
-		Active = 1,        // cuộc trò chuyện đang hoạt động
+		Open = 1,        // cuộc trò chuyện đang hoạt động
 		Closed = 2,        // đã kết thúc
 		Pending = 3,       // đang chờ nhân viên phản hồi
 		Archived = 4       // lưu trữ, không hiển thị nữa

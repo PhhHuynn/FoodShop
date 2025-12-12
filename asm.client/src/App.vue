@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import ChatWidget from "./components/ChatWidget.vue";
 import TheHeader from "./components/TheHeader.vue";
+import { useAuthStore } from "./stores/authStore";
+const auth = useAuthStore();
 </script>
 
 <template>
@@ -9,7 +11,9 @@ import TheHeader from "./components/TheHeader.vue";
   <div style="min-height: calc(100vh - 70px)">
     <router-view />
   </div>
-  <ChatWidget />
+  <div v-if="auth.token && auth.user">
+    <ChatWidget />
+  </div>
   <div class="bg-dark text-white text-center py-4 mt-5">
     &copy; 2025 CookStore. All Rights Reserved.
   </div>

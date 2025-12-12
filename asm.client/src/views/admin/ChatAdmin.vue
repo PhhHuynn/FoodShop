@@ -16,7 +16,7 @@
 
       <ul class="list-group list-group-flush">
         <li
-          v-for="c in conversationStore.conversations"
+          v-for="c in myConversations"
           :key="c.id"
           class="list-group-item list-group-item-action"
           :class="{ active: messageStore.currentConversation === c.id }"
@@ -28,6 +28,14 @@
               c.messages?.length ? c.messages[c.messages.length - 1]?.content : "Chưa có tin nhắn"
             }}
           </small>
+
+          <button
+            v-if="!c.employeeId"
+            class="btn btn-sm btn-outline-warning ms-2"
+            @click.stop="takeConversation(c)"
+          >
+            Nhận
+          </button>
         </li>
       </ul>
     </div>
@@ -98,19 +106,41 @@ const selectedCustomerName = computed(() => {
 async function selectConversation(conversation: Conversation) {
   await messageStore.loadMessages(conversation.id);
   messageStore.connectSignalR(conversation.id);
+  messageStore.currentConversation = conversation.id;
 }
 
 async function sendMessage() {
   if (!messageText.value.trim() || !messageStore.currentConversation) return;
-
+  console.log("Send từ admin");
   await messageStore.sendMessage(adminId, messageText.value);
-
   messageText.value = "";
 }
 
+const myConversations = computed(() => {
+  return conversationStore.conversations.filter((c) => !c.employeeId || c.employeeId === adminId);
+});
+
 onMounted(async () => {
   await conversationStore.fetchConversations();
+
+  const conv = conversationStore.conversations.find((c) => c.employeeId === adminId);
+  if (conv) {
+    await messageStore.loadMessages(conv.id);
+    messageStore.connectSignalR(conv.id);
+    messageStore.currentConversation = conv.id;
+  }
 });
+
+async function takeConversation(conversation: Conversation) {
+  const editConversation: Conversation = {
+    id: conversation.id,
+    customerId: conversation.customerId,
+    status: conversation.status,
+    name: conversation.name,
+    employeeId: adminId,
+  };
+  await conversationStore.editConversation(editConversation.id, editConversation);
+}
 </script>
 
 <style scoped>
