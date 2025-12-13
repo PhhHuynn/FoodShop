@@ -68,12 +68,12 @@
             placeholder="Nhập tin nhắn..."
             v-model="messageText"
             @keyup.enter="sendMessageToAdmin"
-            :disabled="!messageStore.currentConversation"
+            :disabled="!messageStore.currentConversationId"
           />
           <button
             class="btn btn-warning text-white px-2"
             @click="sendMessageToAdmin"
-            :disabled="!messageText.trim() || !messageStore.currentConversation"
+            :disabled="!messageText.trim() || !messageStore.currentConversationId"
           >
             <i class="fa-solid fa-paper-plane"></i>
           </button>
@@ -84,12 +84,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useMessageStore } from "@/stores/messageStore";
 import { useConversationStore } from "@/stores/conversationStore";
 import { createConversation } from "@/api/conversationService";
 import { useAuthStore } from "@/stores/authStore";
-import { ConversationStatus } from "@/types/chat";
 
 const messageStore = useMessageStore();
 const conversationStore = useConversationStore();
@@ -102,6 +101,7 @@ const loading = ref(false);
 
 async function toggleChat() {
   isOpen.value = !isOpen.value;
+  if (isOpen.value) initConversation();
 }
 
 async function initConversation() {
@@ -113,31 +113,32 @@ async function initConversation() {
   if (!conv) {
     conv = await createConversation({
       customerId,
-      status: ConversationStatus.Pending,
     });
     conversationStore.conversations.push(conv);
   }
 
   await messageStore.loadMessages(conv.id);
   messageStore.connectSignalR(conv.id);
-  messageStore.currentConversation = conv.id;
+  messageStore.currentConversationId = conv.id;
   loading.value = false;
 }
 
 async function sendMessageToAdmin() {
   console.log("Mới nhận gửi");
-  if (!messageText.value.trim() || !messageStore.currentConversation) return;
+  if (!messageText.value.trim() || !messageStore.currentConversationId) return;
   console.log("đang nhận gửi");
 
-  await messageStore.sendMessage(customerId, messageText.value);
+  const newMessage = {
+    senderId: customerId,
+    content: messageText.value,
+    senderType: "Customer",
+    conversationId: messageStore.currentConversationId,
+  };
+  await messageStore.sendMessage(newMessage);
 
   messageText.value = "";
   console.log("đã nhận gửi");
 }
-
-onMounted(() => {
-  initConversation();
-});
 </script>
 <style scoped>
 .chat-box {

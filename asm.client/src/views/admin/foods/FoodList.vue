@@ -12,14 +12,16 @@
           <th>Tên món</th>
           <th>Mô tả</th>
           <th>Giá (₫)</th>
+          <th>Đang bán</th>
           <th style="width: 200px">Hành động</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="food in store.foods" :key="food.id">
+        <tr v-for="food in store.foods" :key="food.id" :class="{ italic: food.deletedAt }">
           <td class="text-center">
             <img
-              :src="`https://localhost:7108/${food.imageUrl}`"
+              :class="{ 'img-gray': food.deletedAt !== null }"
+              :src="`https://localhost:7119${food.imageUrl}`"
               alt="food image"
               class="rounded"
               style="width: 60px; height: 60px; object-fit: cover"
@@ -29,20 +31,36 @@
           <td>{{ food.description }}</td>
           <td>{{ food.price.toLocaleString() }}</td>
           <td>
+            <span class="badge" :class="food.isAvailable ? 'bg-success' : 'bg-secondary'">
+              {{ food.isAvailable ? "Còn hàng" : "Hết hàng" }}
+            </span>
+          </td>
+          <td>
             <div class="d-flex gap-2">
               <RouterLink :to="`/admin/foods/${food.id}`" class="btn btn-sm btn-secondary"
                 >Xem</RouterLink
               >
-              <RouterLink :to="`/admin/foods/edit/${food.id}`" class="btn btn-sm btn-primary"
-                >Sửa</RouterLink
-              >
+              <template v-if="food.deletedAt == null">
+                <RouterLink :to="`/admin/foods/edit/${food.id}`" class="btn btn-sm btn-primary"
+                  >Sửa</RouterLink
+                >
+                <button
+                  class="btn btn-sm btn-danger"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteConfirm"
+                  @click="setSelectedFood(food)"
+                >
+                  Xóa
+                </button>
+              </template>
               <button
-                class="btn btn-sm btn-danger"
+                v-else
+                class="btn btn-sm btn-success"
                 data-bs-toggle="modal"
-                data-bs-target="#deleteConfirm"
+                data-bs-target="#restoreConfirm"
                 @click="setSelectedFood(food)"
               >
-                Xóa
+                Khôi phục
               </button>
             </div>
           </td>
@@ -85,6 +103,42 @@
         </div>
       </div>
     </div>
+
+    <!-- Model khôi phục -->
+    <div
+      class="modal fade"
+      id="restoreConfirm"
+      tabindex="-1"
+      aria-labelledby="restoreConfirmLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="restoreConfirmLabel">Xác nhận khôi phục</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>
+              Bạn có chắc muốn khôi phục món
+              <strong>{{ selectedFood?.name }}</strong>
+              không?
+            </p>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button
+              type="button"
+              class="btn btn-success"
+              data-bs-dismiss="modal"
+              @click="restoreFood"
+            >
+              Khôi phục
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -108,6 +162,13 @@ function setSelectedFood(food: Food) {
 async function deleteFood() {
   if (selectedFood.value) {
     await store.removeFood(selectedFood.value.id);
+    selectedFood.value = null;
+  }
+}
+
+async function restoreFood() {
+  if (selectedFood.value) {
+    await store.restoreFoodById(selectedFood.value.id);
     selectedFood.value = null;
   }
 }

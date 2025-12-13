@@ -1,16 +1,16 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import hubConnection from "../signalr/hubConnection";
-import { getMessages, saveMessage } from "../api/messageService";
+import { getMessages } from "../api/messageService";
 import type { Message, MessageCreate } from "@/types/chat";
 import { HubConnectionState } from "@microsoft/signalr";
 
 export const useMessageStore = defineStore("message", () => {
   const messages = ref<Message[]>([]);
-  const currentConversation = ref<number | null>(null);
+  const currentConversationId = ref<number | null>(null);
 
   async function loadMessages(conversationId: number) {
-    currentConversation.value = conversationId;
+    currentConversationId.value = conversationId;
     console.log("Đang load message");
     try {
       messages.value = await getMessages(conversationId);
@@ -20,27 +20,14 @@ export const useMessageStore = defineStore("message", () => {
     }
   }
 
-  async function sendMessage(senderId: string, content: string) {
-    console.log("đang gửi");
+  async function sendMessage(message: MessageCreate) {
     try {
-      const message: MessageCreate = {
-        conversationId: currentConversation.value!,
-        senderId,
-        content,
-      };
-
       if (hubConnection.state !== HubConnectionState.Connected) {
         await hubConnection.start();
       }
 
-      await saveMessage(message);
-      await hubConnection.invoke(
-        "SendMessage",
-        message.conversationId.toString(),
-        senderId,
-        content
-      );
-      messages.value = await getMessages(currentConversation.value!);
+      await hubConnection.invoke("SendMessage", message);
+      messages.value = await getMessages(currentConversationId.value!);
     } catch (err) {
       console.error("Lỗi khi gửi message:", err);
     }
@@ -63,12 +50,14 @@ export const useMessageStore = defineStore("message", () => {
         .then(async () => {
           await hubConnection.invoke("JoinConversation", conversationId.toString());
 
-          hubConnection.on("ReceiveMessage", (senderId, message) => {
+          hubConnection.on("ReceiveMessage", (m) => {
             messages.value.push({
-              id: 0,
-              senderId,
-              content: message,
-              conversationId,
+              id: m.id,
+              content: m.content,
+              conversationId: m.conversationId,
+              senderId: m.senderId,
+              senderType: m.senderType,
+              senderName: m.senderName,
             });
           });
         })
@@ -78,5 +67,5 @@ export const useMessageStore = defineStore("message", () => {
     }
   }
 
-  return { messages, loadMessages, sendMessage, connectSignalR, currentConversation };
+  return { messages, loadMessages, sendMessage, connectSignalR, currentConversationId };
 });

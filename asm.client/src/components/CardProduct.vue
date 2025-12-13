@@ -1,7 +1,7 @@
 <template>
   <div class="card-food card h-100 border rounded-4 shadow-sm">
     <img
-      :src="`https://localhost:7108/${item.imageUrl}`"
+      :src="`https://localhost:7119${item.imageUrl}`"
       class="card-img-top object-fit-cover"
       :alt="item.name"
       style="height: 250px"
@@ -18,13 +18,12 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import { type Food } from "@/types/food";
 import type { Combo } from "@/types/combo";
-import type { CartDetailCreate } from "@/types/cart";
 import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
+import type { CartDetailCreateOrUpdate } from "@/types/cart";
 
 const cartStore = useCartStore();
 const authStore = useAuthStore();
@@ -34,28 +33,15 @@ defineProps<{ item: Food | Combo }>();
 
 async function addToCart(item: Food | Combo) {
   if (authStore.user) {
-    await cartStore.fetchCart(authStore.user?.id);
+    await cartStore.fetchCart();
     if (cartStore.cart) {
-      if ("comboFoods" in item) {
-        const cartDetail: CartDetailCreate = {
-          quantity: 1,
-          comboId: item.id,
-          cartId: cartStore.cart.id,
-        };
-        await cartStore.addItem(cartDetail);
-        await cartStore.fetchCart(authStore.user.id);
-        alert("Thêm thành công");
-      } else {
-        const cartDetail: CartDetailCreate = {
-          quantity: 1,
-          foodId: item.id,
-          cartId: cartStore.cart.id,
-        };
-        await cartStore.addItem(cartDetail);
-        alert("Thêm thành công");
-        await cartStore.fetchCart(authStore.user.id);
-      }
-      console.log(cartStore.cart);
+      const cartDetail: CartDetailCreateOrUpdate = {
+        quantity: 1,
+        productId: item.id,
+      };
+      await cartStore.addItem(cartDetail);
+      await cartStore.fetchCart();
+      alert("Thêm thành công");
     }
   } else {
     router.push("/login");

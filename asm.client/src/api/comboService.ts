@@ -1,5 +1,5 @@
 import api from "./index";
-import { type Combo } from "@/types/combo";
+import type { Combo, ComboCreateOrUpdateDto } from "@/types/combo";
 
 export async function getComboes(): Promise<Combo[]> {
   const res = await api.get<Combo[]>("/Combo");
@@ -11,24 +11,58 @@ export async function getCombo(id: number): Promise<Combo> {
   return res.data;
 }
 
-export async function createCombo(combo: Omit<Combo, "id">): Promise<Combo> {
-  const res = await api.post<Combo>("/Combo", combo);
+export async function getActiveCombos(): Promise<Combo[]> {
+  const res = await api.get<Combo[]>("/Combo/active");
   return res.data;
 }
 
-export async function updateCombo(id: number, combo: Combo): Promise<void> {
-  await api.put(`/Combo/${id}`, combo);
-}
-
-export async function deleteCombo(id: number): Promise<void> {
-  await api.delete(`/Combo/${id}`);
-}
-
-export async function uploadImageToServer(file: File): Promise<string> {
+export async function createCombo(combo: ComboCreateOrUpdateDto): Promise<Combo> {
   const formData = new FormData();
-  formData.append("file", file);
-  const res = await api.post("/combo/upload", formData, {
+  formData.append("name", combo.name);
+  formData.append("description", combo.description);
+  formData.append("price", combo.price.toString());
+  formData.append("isAvailable", combo.isAvailable ? "true" : "false");
+
+  if (combo.fImageFile) {
+    formData.append("fImageFile", combo.fImageFile);
+  }
+
+  if (combo.comboFoods) {
+    formData.append("comboFoods", JSON.stringify(combo.comboFoods));
+  }
+
+  const res = await api.post<Combo>("/Combo", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return res.data.imageUrl;
+
+  return res.data;
+}
+
+export async function updateCombo(id: number, combo: ComboCreateOrUpdateDto): Promise<void> {
+  const formData = new FormData();
+  formData.append("name", combo.name);
+  formData.append("description", combo.description);
+  formData.append("price", combo.price.toString());
+  formData.append("isAvailable", combo.isAvailable ? "true" : "false");
+
+  if (combo.fImageFile) {
+    formData.append("fImageFile", combo.fImageFile);
+  }
+
+  combo.comboFoods.forEach((cf, index) => {
+    formData.append(`comboFoods[${index}].foodId`, cf.foodId.toString());
+    formData.append(`comboFoods[${index}].quantity`, cf.quantity.toString());
+  });
+
+  await api.put(`/Combo/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+}
+
+export async function deleteCombo(id: number): Promise<string> {
+  return await api.delete(`/Combo/${id}`).then((res) => res.data);
+}
+
+export async function restoreCombo(id: number): Promise<void> {
+  await api.patch(`/Combo/${id}/restore`);
 }

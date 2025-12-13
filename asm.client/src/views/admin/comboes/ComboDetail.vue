@@ -4,17 +4,15 @@
 
     <div v-if="combo" class="card p-3">
       <div class="row g-3">
-        <!-- Cột hình ảnh -->
         <div class="col-md-5">
           <img
-            :src="`https://localhost:7108/${combo.imageUrl}`"
+            :src="`https://localhost:7119${combo.imageUrl}`"
             class="img-fluid rounded"
             :alt="combo.name"
             style="object-fit: cover; height: 330px; width: 100%"
           />
         </div>
 
-        <!-- Cột thông tin combo -->
         <div class="col-md-7 d-flex flex-column justify-content-center">
           <h3 class="card-title mb-3">{{ combo.name }}</h3>
           <p class="card-text text-muted">{{ combo.description }}</p>
@@ -28,7 +26,7 @@
               :key="comboFood.foodId"
               class="list-group-item d-flex justify-content-between align-items-center"
             >
-              <span class="fw-medium">{{ comboFood.food.name }}</span>
+              <span class="fw-medium">{{ comboFood.name }}</span>
               <span class="badge bg-primary rounded-pill">x {{ comboFood.quantity }}</span>
             </li>
             <li v-if="combo.comboFoods.length === 0" class="list-group-item text-muted">
@@ -63,7 +61,6 @@ onMounted(async () => {
   const fetchData: Combo | undefined = await store.fetchCombo(Number(route.params.id));
   if (fetchData) {
     combo.value = fetchData;
-    console.log(combo.value);
   } else {
     console.warn(`Không tìm thấy combo với ID: ${route.params.id}`);
   }

@@ -1,13 +1,13 @@
-import type { Combo } from "./combo";
-import type { Food } from "./food";
-
 export interface Order {
   id: number;
   shippingAddress: string;
   status: OrderStatus;
   totalAmount: number;
   createdAt: string;
+  updatedAt?: string;
   userId: string;
+  discountAmount: string;
+  paymentMethod: PaymentMethod;
   orderDetails?: OrderDetail[] | null;
 }
 
@@ -15,11 +15,12 @@ export interface OrderDetail {
   id: number;
   quantity: number;
   unitPrice: number;
-  orderId: number;
-  foodId?: number | null;
-  comboId?: number | null;
-  food?: Food | null;
-  combo?: Combo | null;
+  productId?: number | null;
+}
+
+export enum PaymentMethod {
+  COD = 1,
+  Momo = 2,
 }
 
 export enum OrderStatus {

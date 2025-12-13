@@ -17,34 +17,51 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="Combo in store.comboes" :key="Combo.id">
+        <tr v-for="Combo in store.comboes" :key="Combo.id" :class="{ italic: Combo.deletedAt }">
           <td class="text-center">
             <img
-              :src="`https://localhost:7108/${Combo.imageUrl}`"
+              :class="{ 'img-gray': Combo.deletedAt !== null }"
+              :src="`https://localhost:7119/${Combo.imageUrl}`"
               alt="Combo image"
               class="rounded"
               style="width: 60px; height: 60px; object-fit: cover"
             />
           </td>
-          <td>{{ Combo.name }}</td>
+          <td>{{ Combo.name }} <span v-if="Combo.deletedAt">[Deleted]</span></td>
           <td>{{ Combo.description }}</td>
           <td>{{ Combo.price.toLocaleString() }}</td>
-          <td>{{ Combo.isAvailable }}</td>
+          <td>
+            <span class="badge" :class="Combo.isAvailable ? 'bg-success' : 'bg-secondary'">
+              {{ Combo.isAvailable ? "Còn hàng" : "Hết hàng" }}
+            </span>
+          </td>
+
           <td>
             <div class="d-flex gap-2">
               <RouterLink :to="`/admin/comboes/${Combo.id}`" class="btn btn-sm btn-secondary"
                 >Xem</RouterLink
               >
-              <RouterLink :to="`/admin/comboes/edit/${Combo.id}`" class="btn btn-sm btn-primary"
-                >Sửa</RouterLink
-              >
+              <template v-if="Combo.deletedAt == null">
+                <RouterLink :to="`/admin/comboes/edit/${Combo.id}`" class="btn btn-sm btn-primary"
+                  >Sửa</RouterLink
+                >
+                <button
+                  class="btn btn-sm btn-danger"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteConfirm"
+                  @click="setSelectedCombo(Combo)"
+                >
+                  Xóa
+                </button>
+              </template>
               <button
-                class="btn btn-sm btn-danger"
+                v-else
+                class="btn btn-sm btn-success"
                 data-bs-toggle="modal"
-                data-bs-target="#deleteConfirm"
-                @click="setSelectedFood(Combo)"
+                data-bs-target="#restoreConfirm"
+                @click="setSelectedCombo(Combo)"
               >
-                Xóa
+                Khôi phục
               </button>
             </div>
           </td>
@@ -52,7 +69,6 @@
       </tbody>
     </table>
 
-    <!-- Modal xác nhận xóa -->
     <div
       class="modal fade"
       id="deleteConfirm"
@@ -79,9 +95,45 @@
               type="button"
               class="btn btn-danger"
               data-bs-dismiss="modal"
-              @click="deleteFood"
+              @click="deleteCombo"
             >
               Xóa
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal khôi phục -->
+    <div
+      class="modal fade"
+      id="restoreConfirm"
+      tabindex="-1"
+      aria-labelledby="restoreConfirmLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="restoreConfirmLabel">Xác nhận khôi phục</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>
+              Bạn có chắc muốn khôi phục món
+              <strong>{{ selectedFood?.name }}</strong>
+              không?
+            </p>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button
+              type="button"
+              class="btn btn-success"
+              data-bs-dismiss="modal"
+              @click="restoreCombo"
+            >
+              Khôi phục
             </button>
           </div>
         </div>
@@ -103,13 +155,20 @@ onMounted(() => {
   store.fetchComboes();
 });
 
-function setSelectedFood(Combo: Combo) {
+function setSelectedCombo(Combo: Combo) {
   selectedFood.value = Combo;
 }
 
-async function deleteFood() {
+async function deleteCombo() {
   if (selectedFood.value) {
     await store.removeCombo(selectedFood.value.id);
+    selectedFood.value = null;
+  }
+}
+
+async function restoreCombo() {
+  if (selectedFood.value) {
+    await store.restoreComboById(selectedFood.value.id);
     selectedFood.value = null;
   }
 }

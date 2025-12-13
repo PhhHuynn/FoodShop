@@ -9,18 +9,15 @@ namespace ASM.Server.Models
 
 		public string? Name { get; set; }
 
-		public ConversationStatus Status { get; set; } = ConversationStatus.Active;
+		public ConversationStatus Status { get; set; } = ConversationStatus.Open;
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime? UpdatedAt { get; set; }
 
 		public string CustomerId { get; set; }
-		public string? EmployeeId { get; set; }
 
 		[ForeignKey(nameof(CustomerId))]
 		public AppUser? Customer { get; set; }
-
-		[ForeignKey(nameof(EmployeeId))]
-		public AppUser? Employee { get; set; }
 
 		public ICollection<Message>? Messages { get; set; }
 	}

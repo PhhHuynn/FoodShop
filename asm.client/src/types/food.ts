@@ -1,9 +1,11 @@
-export interface Food {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  imageUrl: string;
+import type { Product } from "./product";
+
+export interface Food extends Product {
   categoryId: number;
-  isAvailable: boolean;
+  categoryName: string;
 }
+
+export type FoodCreateOrUpdate = Omit<
+  Food,
+  "createdAt" | "updatedAt" | "deletedAt" | "averageRating" | "imageUrl" | "categoryName"
+>;

@@ -58,7 +58,6 @@
 import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useFoodStore } from "@/stores/foodStore";
-import type { Food } from "@/types/food";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { useRouter } from "vue-router";
 
@@ -69,9 +68,7 @@ const categoryStore = useCategoryStore();
 const route = useRoute();
 const isEdit = computed(() => !!Number(route.params.id));
 
-const imageFile = ref<File | null>(null);
-
-const form = ref<Food>({
+const form = ref({
   id: 0,
   name: "",
   price: 0,
@@ -79,6 +76,7 @@ const form = ref<Food>({
   imageUrl: "",
   categoryId: 0,
   isAvailable: true,
+  fImageFile: null,
 });
 
 onMounted(async () => {
@@ -88,7 +86,7 @@ onMounted(async () => {
     const foodId = Number(route.params.id);
     const food = await store.fetchFood(foodId);
     if (food) {
-      form.value = { ...food };
+      form.value = { ...food, fImageFile: null };
     }
   }
 });
@@ -96,17 +94,12 @@ onMounted(async () => {
 function onFileChange(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
-    imageFile.value = target.files[0];
+    form.value.fImageFile = target.files[0];
   }
 }
 
 const handleSubmit = async () => {
   try {
-    if (imageFile.value) {
-      form.value.imageUrl = await store.uploadImage(imageFile.value);
-    }
-
-    console.log("Food form", { ...form.value });
     if (isEdit.value) {
       await store.editFood(form.value.id, { ...form.value });
       alert("Cập nhật món ăn thành công!");
@@ -121,8 +114,8 @@ const handleSubmit = async () => {
         imageUrl: "",
         categoryId: 0,
         isAvailable: true,
+        fImageFile: null,
       };
-      imageFile.value = null;
     }
 
     router.push("/admin/foods/");

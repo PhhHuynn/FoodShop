@@ -16,35 +16,89 @@
 
       <ul class="list-group list-group-flush">
         <li
-          v-for="c in myConversations"
+          v-for="c in conversationStore.conversations"
           :key="c.id"
-          class="list-group-item list-group-item-action"
-          :class="{ active: messageStore.currentConversation === c.id }"
+          class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
+          :class="{ active: messageStore.currentConversationId === c.id }"
           @click="selectConversation(c)"
         >
-          <div class="fw-semibold">{{ c.customer?.fullName || "Khách mới" }}</div>
-          <small class="text-muted">
-            {{
-              c.messages?.length ? c.messages[c.messages.length - 1]?.content : "Chưa có tin nhắn"
-            }}
-          </small>
+          <div>
+            <div class="fw-semibold">{{ c.customerName || "Khách mới" }}</div>
+            <small class="text-muted">
+              {{
+                c.messages?.length ? c.messages[c.messages.length - 1]?.content : "Chưa có tin nhắn"
+              }}
+            </small>
+          </div>
 
-          <button
-            v-if="!c.employeeId"
-            class="btn btn-sm btn-outline-warning ms-2"
-            @click.stop="takeConversation(c)"
+          <span
+            class="badge rounded-pill"
+            :class="{
+              'bg-success': c.status === ConversationStatus.Closed,
+              'bg-danger': c.status === ConversationStatus.Pending,
+              'bg-primary': c.status === ConversationStatus.Open,
+              'bg-secondary': c.status === ConversationStatus.Archived,
+            }"
           >
-            Nhận
-          </button>
+            {{
+              c.status === 1
+                ? "Open"
+                : c.status === 2
+                ? "Closed"
+                : c.status === 3
+                ? "Pending"
+                : c.status === 4
+                ? "Archived"
+                : "Unknown"
+            }}
+          </span>
         </li>
       </ul>
     </div>
 
     <div class="flex-grow-1 d-flex flex-column">
-      <div class="p-3 border-bottom bg-white fw-bold">{{ selectedCustomerName }}</div>
+      <div class="p-3 border-bottom bg-white fw-bold d-flex justify-content-between">
+        <span>
+          {{ selectedConversation.customerName }}
+        </span>
+        <div v-if="selectedConversation.id" class="dropdown">
+          <button
+            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style="min-width: 120px"
+          >
+            {{ ConversationStatus[selectedConversation.status] }}
+          </button>
+
+          <ul class="dropdown-menu">
+            <li>
+              <button class="dropdown-item" @click="onStatusClick(ConversationStatus.Open)">
+                Open
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" @click="onStatusClick(ConversationStatus.Closed)">
+                Closed
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" @click="onStatusClick(ConversationStatus.Pending)">
+                Pending
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" @click="onStatusClick(ConversationStatus.Archived)">
+                Archived
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
 
       <div class="flex-grow-1 p-3 overflow-auto" id="chat-box">
-        <div v-if="!messageStore.currentConversation" class="text-center text-muted mt-5">
+        <div v-if="!messageStore.currentConversationId" class="text-center text-muted mt-5">
           Chọn một cuộc trò chuyện để bắt đầu
         </div>
 
@@ -54,21 +108,35 @@
             :key="m.id"
             class="mb-3 d-flex"
             :class="{
-              'justify-content-end': m.senderId === adminId,
-              'justify-content-start': m.senderId !== adminId,
+              'justify-content-end': m.senderType === 'Admin',
+              'justify-content-start': m.senderType !== 'Admin',
             }"
           >
             <div
-              class="p-2 rounded-3"
-              :class="m.senderId === adminId ? 'bg-warning text-white' : 'bg-body-secondary border'"
+              class="d-flex flex-column align-items-start"
+              :class="m.senderType === 'Admin' ? 'align-items-end' : 'align-items-start'"
             >
-              {{ m.content }}
+              <div
+                class="p-2 rounded-3"
+                :class="
+                  m.senderType === 'Admin' ? 'bg-warning text-white' : 'bg-body-secondary border'
+                "
+              >
+                {{ m.content }}
+              </div>
+              <small
+                v-if="m.senderType === 'Admin' && m.senderName"
+                class="text-muted mt-1"
+                style="font-size: 0.7rem"
+              >
+                Người gửi: {{ m.senderName }}
+              </small>
             </div>
           </div>
         </div>
       </div>
 
-      <div v-if="messageStore.currentConversation" class="p-3 border-top bg-white">
+      <div v-if="messageStore.currentConversationId" class="p-3 border-top bg-white">
         <div class="input-group">
           <input
             type="text"
@@ -89,7 +157,7 @@ import { ref, computed, onMounted } from "vue";
 import { useConversationStore } from "@/stores/conversationStore";
 import { useMessageStore } from "@/stores/messageStore";
 import { useAuthStore } from "@/stores/authStore";
-import type { Conversation } from "@/types/chat";
+import { ConversationStatus, type Conversation, type MessageCreate } from "@/types/chat";
 
 const conversationStore = useConversationStore();
 const messageStore = useMessageStore();
@@ -98,48 +166,54 @@ const authStore = useAuthStore();
 const adminId = authStore.user!.id;
 const messageText = ref("");
 
-const selectedCustomerName = computed(() => {
-  const c = conversationStore.conversations.find((x) => x.id === messageStore.currentConversation);
-  return c?.customer?.fullName || "Chưa chọn cuộc trò chuyện";
+const selectedConversation = computed(() => {
+  const c = conversationStore.conversations.find(
+    (x) => x.id === messageStore.currentConversationId
+  );
+
+  if (!c) {
+    return {
+      customerName: "Chưa chọn cuộc trò chuyện",
+      status: null,
+      id: null,
+    };
+  }
+
+  return {
+    customerName: c.customerName,
+    status: c.status,
+    id: messageStore.currentConversationId,
+  };
 });
 
 async function selectConversation(conversation: Conversation) {
   await messageStore.loadMessages(conversation.id);
   messageStore.connectSignalR(conversation.id);
-  messageStore.currentConversation = conversation.id;
+  messageStore.currentConversationId = conversation.id;
+  console.log(messageStore.messages);
 }
 
 async function sendMessage() {
-  if (!messageText.value.trim() || !messageStore.currentConversation) return;
-  console.log("Send từ admin");
-  await messageStore.sendMessage(adminId, messageText.value);
+  if (!messageText.value.trim() || !messageStore.currentConversationId) return;
+  const newMessage: MessageCreate = {
+    content: messageText.value,
+    conversationId: messageStore.currentConversationId,
+    senderId: adminId,
+    senderType: "Admin",
+  };
+  await messageStore.sendMessage(newMessage);
   messageText.value = "";
 }
 
-const myConversations = computed(() => {
-  return conversationStore.conversations.filter((c) => !c.employeeId || c.employeeId === adminId);
-});
-
 onMounted(async () => {
   await conversationStore.fetchConversations();
-
-  const conv = conversationStore.conversations.find((c) => c.employeeId === adminId);
-  if (conv) {
-    await messageStore.loadMessages(conv.id);
-    messageStore.connectSignalR(conv.id);
-    messageStore.currentConversation = conv.id;
-  }
 });
 
-async function takeConversation(conversation: Conversation) {
-  const editConversation: Conversation = {
-    id: conversation.id,
-    customerId: conversation.customerId,
-    status: conversation.status,
-    name: conversation.name,
-    employeeId: adminId,
-  };
-  await conversationStore.editConversation(editConversation.id, editConversation);
+async function onStatusClick(status: ConversationStatus) {
+  await conversationStore.editConversation(selectedConversation.value.id, {
+    id: selectedConversation.value.id,
+    status,
+  });
 }
 </script>
 

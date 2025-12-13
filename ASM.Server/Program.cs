@@ -1,6 +1,8 @@
 using ASM.Server.Data;
 using ASM.Server.Hubs;
 using ASM.Server.Models;
+using ASM.Server.Services;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,8 +25,17 @@ builder.Services.AddSwaggerGen(c =>
 	c.IncludeXmlComments(xmlPath);
 });
 
+// Hangfire
+builder.Services.AddHangfire(config =>
+{
+	config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+builder.Services.AddScoped<ConversationService>();
 
 
+builder.Services.AddHangfireServer();
+
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVue", policy =>
@@ -106,6 +117,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
 	app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Lab1 API V1"));
 }
+app.UseHangfireDashboard();
+RecurringJob.AddOrUpdate<ConversationService>(
+	recurringJobId: "update-conversation-status",
+	methodCall: updater => updater.UpdateStatuses(),
+	cronExpression: Cron.Minutely,
+	options: new RecurringJobOptions
+	{
+		TimeZone = TimeZoneInfo.Local
+	},
+	queue: "default"
+);
+
+
 app.UseStaticFiles();
 app.MapHub<ChatHub>("/chathub");
 app.UseHttpsRedirection();

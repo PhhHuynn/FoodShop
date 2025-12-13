@@ -128,7 +128,7 @@ router.beforeEach((to, from, next) => {
     return next("/login");
   }
 
-  if (to.meta.roles && store.userRole && !to.meta.roles.includes(store.userRole)) {
+  if (to.meta.roles && store.user?.role && !to.meta.roles.includes(store.user?.role)) {
     return next("/403");
   }
 

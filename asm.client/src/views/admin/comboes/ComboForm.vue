@@ -3,25 +3,21 @@
     <h2>{{ isEdit ? "Cập nhật combo" : "Thêm combo" }}</h2>
 
     <form @submit.prevent="handleSubmit">
-      <!-- Tên combo -->
       <div class="mb-3">
         <label>Tên combo</label>
         <input v-model="form.name" class="form-control" required />
       </div>
 
-      <!-- Giá combo -->
       <div class="mb-3">
         <label>Giá combo</label>
         <input type="number" min="0" v-model.number="form.price" class="form-control" required />
       </div>
 
-      <!-- Mô tả combo -->
       <div class="mb-3">
         <label>Mô tả</label>
         <textarea v-model="form.description" class="form-control"></textarea>
       </div>
 
-      <!-- Chọn món ăn trong combo -->
       <div class="mb-3">
         <label>Món ăn trong combo</label>
         <div class="row g-3">
@@ -58,7 +54,6 @@
           </div>
         </div>
       </div>
-      <!-- Ảnh combo -->
       <div class="mb-3">
         <label>Ảnh</label>
         <input type="file" @change="onFileChange" class="form-control" accept="image/*" />
@@ -78,7 +73,6 @@
         </div>
       </div>
 
-      <!-- Submit -->
       <button type="submit" class="btn btn-primary" :disabled="comboStore.loading">
         {{ isEdit ? "Lưu thay đổi" : "Thêm mới" }}
       </button>
@@ -98,8 +92,6 @@ const router = useRouter();
 const route = useRoute();
 const isEdit = computed(() => !!Number(route.params.id));
 
-const imageFile = ref<File | null>(null);
-
 const form = ref({
   id: 0,
   name: "",
@@ -107,6 +99,7 @@ const form = ref({
   description: "",
   imageUrl: "",
   isAvailable: true,
+  fImageFile: null,
 });
 
 interface ComboSelection {
@@ -130,8 +123,9 @@ onMounted(async () => {
         name: combo.name,
         price: combo.price,
         description: combo.description,
-        imageUrl: combo.imageUrl,
         isAvailable: combo.isAvailable,
+        imageUrl: combo.imageUrl,
+        fImageFile: null,
       };
       combo.comboFoods?.forEach((cf) => {
         comboFoodSelection.value[cf.foodId] = { selected: true, quantity: cf.quantity };
@@ -143,21 +137,16 @@ onMounted(async () => {
 function onFileChange(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
-    imageFile.value = target.files[0];
+    form.value.fImageFile = target.files[0];
   }
 }
 
 const handleSubmit = async () => {
   try {
-    if (imageFile.value) {
-      form.value.imageUrl = await comboStore.uploadImage(imageFile.value);
-    }
-
     const comboFoodsPayload = Object.entries(comboFoodSelection.value)
       .filter(([_, val]) => val.selected)
       .map(([foodId, val]) => ({
         foodId: Number(foodId),
-        comboId: form.value.id,
         quantity: val.quantity,
       }));
 
@@ -165,19 +154,24 @@ const handleSubmit = async () => {
       ...form.value,
       comboFoods: comboFoodsPayload,
     };
-    console.log(payload);
-
     if (isEdit.value) {
       await comboStore.editCombo(form.value.id, payload);
       alert("Cập nhật combo thành công!");
     } else {
       await comboStore.addCombo(payload);
       alert("Thêm combo thành công!");
-      form.value = { id: 0, name: "", price: 0, description: "", imageUrl: "", isAvailable: true };
+      form.value = {
+        id: 0,
+        name: "",
+        price: 0,
+        description: "",
+        imageUrl: "",
+        isAvailable: true,
+        fImageFile: null,
+      };
       Object.keys(comboFoodSelection.value).forEach((k) => {
         comboFoodSelection.value[Number(k)] = { selected: false, quantity: 1 };
       });
-      imageFile.value = null;
     }
 
     router.push("/admin/comboes");

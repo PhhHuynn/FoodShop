@@ -4,17 +4,15 @@
 
     <div v-if="food" class="card p-3">
       <div class="row g-3">
-        <!-- Cột hình ảnh -->
         <div class="col-md-5">
           <img
-            :src="`https://localhost:7108/${food.imageUrl}`"
+            :src="`https://localhost:7119${food.imageUrl}`"
             class="img-fluid rounded"
             alt="food image"
             style="object-fit: cover; height: 250px; width: 100%"
           />
         </div>
 
-        <!-- Cột thông tin -->
         <div class="col-md-7 d-flex flex-column justify-content-center">
           <h5 class="card-title">{{ food.name }}</h5>
           <p class="card-text">{{ food.description }}</p>

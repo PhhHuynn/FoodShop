@@ -1,12 +1,7 @@
 import { login, loginWithGoogle, updateAccount } from "@/api/authService";
 import { type AccountUpdate, type AuthResponse, type LoginUser } from "@/types/user";
-import { jwtDecode } from "jwt-decode";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-
-interface TokenPayload {
-  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string;
-}
 
 export const useAuthStore = defineStore("auth", () => {
   const token = ref<string | null>(localStorage.getItem("token"));
@@ -15,23 +10,8 @@ export const useAuthStore = defineStore("auth", () => {
   );
 
   const isLoggedIn = computed(() => !!token.value);
-  const userRole = computed(() => {
-    if (!token.value) {
-      return null;
-    }
 
-    try {
-      const payload: TokenPayload = jwtDecode(token.value);
-
-      return payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-    } catch (error) {
-      console.error("Failed to decode token:", error);
-      return null;
-    }
-  });
-
-  const isAdmin = computed(() => userRole.value == "Admin");
-  const isSale = computed(() => userRole.value == "Sale");
+  const isAdmin = computed(() => user.value?.role == "Admin");
 
   function setSession(data: AuthResponse) {
     token.value = data.token;
@@ -77,7 +57,5 @@ export const useAuthStore = defineStore("auth", () => {
     logout,
     isLoggedIn,
     isAdmin,
-    isSale,
-    userRole,
   };
 });

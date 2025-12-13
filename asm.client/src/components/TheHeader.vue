@@ -25,16 +25,18 @@
             >
             </lord-icon>
             <span
-              v-if="cartStore.cartCount! >= 0"
+              v-if="cartStore.cart?.cartDetails.length"
               style="top: 10px"
               class="position-absolute start-100 translate-middle badge rounded-pill bg-danger"
             >
-              {{ cartStore.cartCount }}
+              {{ cartStore.cart?.cartDetails.length }}
             </span>
           </button>
+
           <RouterLink to="/admin/dashboard" v-if="auth.isAdmin" class="btn btn-warning">
             Quản lý
           </RouterLink>
+
           <div class="dropdown">
             <button
               style="width: 40px; height: 40px"
@@ -47,12 +49,12 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm">
               <li>
-                <router-link to="/dashboard" class="dropdown-item" href="#">My Profile</router-link>
+                <router-link to="/dashboard" class="dropdown-item">My Profile</router-link>
               </li>
               <li>
-                <router-link to="/orders" class="dropdown-item" href="#">Đơn hàng</router-link>
+                <router-link to="/orders" class="dropdown-item">Đơn hàng</router-link>
               </li>
-              <li><a class="dropdown-item" href="#" @click="logout">Logout</a></li>
+              <li><a class="dropdown-item" @click="logout">Logout</a></li>
             </ul>
           </div>
         </template>
@@ -65,7 +67,6 @@
     </div>
   </nav>
 
-  <!-- Offcanvas giỏ hàng -->
   <div
     class="offcanvas offcanvas-end"
     tabindex="-1"
@@ -73,13 +74,8 @@
     aria-labelledby="cartOffcanvasLabel"
   >
     <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="cartOffcanvasLabel">Giỏ hàng</h5>
-      <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="offcanvas"
-        aria-label="Close"
-      ></button>
+      <h5 class="offcanvas-title">Giỏ hàng</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
 
     <div class="offcanvas-body d-flex flex-column">
@@ -92,16 +88,18 @@
 
       <ul v-else class="list-group mb-3">
         <li
-          v-for="item in cartStore.cart!.cartDetails"
+          v-for="item in cartStore.cart.cartDetails"
           :key="item.id"
           class="list-group-item d-flex justify-content-between align-items-center"
         >
           <span style="flex: 1">
-            {{ item.food?.name || item.combo?.name }}
+            {{ item.productName }}
           </span>
+
           <span class="me-2">
-            {{ formatCurrency((item.food?.price ?? item.combo?.price ?? 0) * item.quantity) }}
+            {{ formatCurrency(item.price * item.quantity) }}
           </span>
+
           <input
             type="number"
             min="1"
@@ -115,13 +113,12 @@
       </ul>
 
       <div v-if="cartStore.cart?.cartDetails.length" class="mb-3">
-        <h6>Tổng tiền: {{ formatCurrency(totalPrice) }}</h6>
+        <h6>Tổng tiền: {{ formatCurrency(cartStore.cartTotal) }}</h6>
       </div>
 
       <div class="mb-3">
-        <label for="address" class="form-label">Địa chỉ nhận hàng</label>
+        <label class="form-label">Địa chỉ nhận hàng</label>
         <input
-          id="address"
           v-model="address"
           type="text"
           class="form-control"
@@ -131,14 +128,7 @@
 
       <div class="mb-3">
         <label class="form-label">Phương thức thanh toán</label>
-        <input
-          type="text"
-          name=""
-          id=""
-          class="form-control"
-          readonly
-          value="Thanh toán khi nhận hàng (COD)"
-        />
+        <input class="form-control" readonly value="Thanh toán khi nhận hàng (COD)" />
       </div>
 
       <button class="btn btn-warning mt-auto" @click="checkout">Thanh toán</button>
@@ -147,23 +137,26 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "@/stores/authStore";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { ref, onMounted, computed } from "vue";
+import { useAuthStore } from "@/stores/authStore";
 import { useCartStore } from "@/stores/cartStore";
-import type { CartDetail } from "@/types/cart";
 import { useOrderStore } from "@/stores/orderStore";
-import { OrderStatus, type Order, type OrderDetail } from "@/types/order";
+import type { CartDetail } from "@/types/cart";
+import type { Order, OrderDetail } from "@/types/order";
+import { OrderStatus, PaymentMethod } from "@/types/order";
 
+const auth = useAuthStore();
 const cartStore = useCartStore();
 const orderStore = useOrderStore();
-const auth = useAuthStore();
+
 const address = ref("");
+
 onMounted(async () => {
   if (auth.user) {
-    await cartStore.fetchCart(auth.user?.id);
+    await cartStore.fetchCart();
   }
-  console.log(auth.userRole);
+  console.log(cartStore.cart);
 });
 
 const router = useRouter();
@@ -172,69 +165,60 @@ const logout = () => {
   router.push("/");
 };
 
-const totalPrice = computed(() => {
-  if (!cartStore.cart) return 0;
-  return cartStore.cart.cartDetails.reduce((sum, item) => {
-    const price = item.food?.price || item.combo?.price || 0;
-    return sum + price * item.quantity;
-  }, 0);
-});
-
 async function checkout() {
   if (!address.value) {
     alert("Vui lòng nhập địa chỉ giao hàng!");
     return;
   }
-  if (auth.user == null) {
-    return;
-  }
+  if (!auth.user || !cartStore.cart) return;
 
-  const orderDetails: OrderDetail[] = cartStore.cart?.cartDetails.map((item: CartDetail) => {
-    const price = item.food?.price || item.combo?.price || 0;
-    return {
-      foodId: item.foodId,
-      comboId: item.comboId,
-      quantity: item.quantity,
-      unitPrice: price,
-    };
-  });
-
-  const totalAmount = orderDetails.reduce(
-    (sum, detail) => sum + detail.quantity * detail.unitPrice,
-    0
-  );
+  const orderDetails: OrderDetail[] = cartStore.cart.cartDetails.map((item: CartDetail) => ({
+    quantity: item.quantity,
+    unitPrice: item.price,
+    productId: item.productId,
+  }));
 
   const newOrder: Order = {
+    id: 0,
     shippingAddress: address.value,
-    totalAmount: totalAmount,
     status: OrderStatus.Pending,
-    userId: auth.user?.id,
-    orderDetails: orderDetails,
+    totalAmount: cartStore.cartTotal,
+    discountAmount: "0",
+    paymentMethod: PaymentMethod.COD,
+    userId: auth.user.id,
+    orderDetails,
   };
+
   try {
     await orderStore.addOrder(newOrder);
     await cartStore.checkOutCart();
 
-    await cartStore.fetchCart(auth.user?.id);
+    await cartStore.fetchCart();
 
     alert("Đặt hàng thành công!");
     address.value = "";
   } catch (err) {
-    console.error("Lỗi đặt hàng:", err);
-    alert("Có lỗi xảy ra trong quá trình đặt hàng.");
+    console.error(err);
+    alert("Có lỗi khi đặt hàng.");
   }
 }
 
 async function removeItem(item: CartDetail) {
-  await cartStore.removeItem(item.id);
+  await cartStore.removeItem(item.productId);
 }
 
 async function updateQuantity(item: CartDetail) {
   if (item.quantity < 1) item.quantity = 1;
-  await cartStore.updateItem(item.id, item.quantity);
+
+  const dto = {
+    quantity: item.quantity,
+    productId: item.productId,
+  };
+
+  await cartStore.updateItem(dto);
 }
 
-function formatCurrency(amount: number): string {
+function formatCurrency(amount: number) {
   return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 }
 </script>

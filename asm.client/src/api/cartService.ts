@@ -1,26 +1,25 @@
 import api from "./index";
-import type { Cart, CartDetail, CartDetailCreate } from "@/types/cart";
+import type { Cart, CartDetail, CartDetailCreateOrUpdate } from "@/types/cart";
 
-export async function getCartActive(userId: string): Promise<Cart> {
-  const res = await api.get<Cart>(`/Carts/active/${userId}`);
+export async function getCartActive(): Promise<Cart> {
+  const res = await api.get<Cart>(`/Cart`);
   return res.data;
 }
-export const addCartDetail = async (cartDetail: CartDetailCreate): Promise<CartDetail> => {
-  const response = await api.post(`CartDetails/`, cartDetail);
+export const addCartDetail = async (cartDetail: CartDetailCreateOrUpdate): Promise<CartDetail> => {
+  console.log(cartDetail);
+
+  const response = await api.post(`cart/product/`, cartDetail);
   return response.data;
 };
 
-// Cập nhật item trong cart
-export const updateCartDetail = async (id: number, cartDetail: CartDetail): Promise<void> => {
-  await api.put(`CartDetails/${id}`, cartDetail);
+export const updateCartDetail = async (cartDetail: CartDetailCreateOrUpdate): Promise<void> => {
+  await api.post(`cart/product/`, cartDetail);
 };
 
-// Xóa item khỏi cart
-export const deleteCartDetail = async (id: number): Promise<void> => {
-  await api.delete(`CartDetails/${id}`);
+export const deleteCartDetail = async (productId: number): Promise<void> => {
+  await api.delete(`cart/product/${productId}`);
 };
 
-// Cập nhật trạng thái cart
-export const updateCartStatus = async (id: number, cart: Cart): Promise<void> => {
-  await api.put(`Carts/${id}`, cart);
+export const deleteCart = async (): Promise<void> => {
+  await api.delete(`Cart`);
 };

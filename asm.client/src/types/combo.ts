@@ -1,19 +1,17 @@
-import type { Food } from "./food";
+import type { Product } from "./product";
 
-export interface Combo {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  imageUrl: string;
-  isAvailable: boolean;
+export interface Combo extends Product {
   comboFoods: comboFood[];
 }
 
 export interface comboFood {
   id?: number;
   foodId: number;
-  comboId: number;
+  name?: string;
   quantity: number;
-  food: Food;
 }
+
+export type ComboCreateOrUpdateDto = Omit<
+  Combo,
+  "id" | "createdAt" | "updatedAt" | "deletedAt" | "averageRating" | "imageUrl"
+>;

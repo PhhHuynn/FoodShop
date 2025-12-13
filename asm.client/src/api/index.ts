@@ -1,3 +1,4 @@
+import router from "@/router";
 import axios from "axios";
 const api = axios.create({
   baseURL: "https://localhost:7119/api",
@@ -17,6 +18,22 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+
+      router.push("/login");
+    }
+
     return Promise.reject(error);
   }
 );

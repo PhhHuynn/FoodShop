@@ -225,12 +225,10 @@ namespace ASM.Server.Controllers
 				})
 				.ToListAsync();
 
-			decimal total = cartItems.Sum(c => c.Total);
 
 			var response = new CartResponseDto
 			{
 				CartDetails = cartItems,
-				Total = total
 			};
 
 			return Ok(response);

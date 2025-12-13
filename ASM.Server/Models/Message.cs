@@ -13,6 +13,7 @@ namespace ASM.Server.Models
 
 		public int ConversationId { get; set; }
 		public string SenderId { get; set; }
+		public string? SenderType { get; set; }
 
 		[JsonIgnore]
 		[ForeignKey(nameof(ConversationId))]

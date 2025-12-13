@@ -1,7 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 
 const hubConnection = new signalR.HubConnectionBuilder()
-  .withUrl("https://localhost:7108/chathub")
+  .withUrl("https://localhost:7119/chathub")
   .withAutomaticReconnect()
   .build();
 

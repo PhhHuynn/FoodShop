@@ -12,7 +12,6 @@ import { OrderStatus, type Order } from "@/types/order";
 export const useOrderStore = defineStore("Order", () => {
   const orders = ref<Order[]>([]);
   const loading = ref(false);
-
   async function fetchOrders() {
     loading.value = true;
     try {
@@ -24,10 +23,10 @@ export const useOrderStore = defineStore("Order", () => {
     }
   }
 
-  async function fetchOrdersByUserId(userId: string) {
+  async function fetchOrdersByUserId() {
     loading.value = true;
     try {
-      orders.value = await getOrdersByUserId(userId);
+      orders.value = await getOrdersByUserId();
     } catch (err) {
       console.error("Lỗi khi tải orders: ", err);
     } finally {

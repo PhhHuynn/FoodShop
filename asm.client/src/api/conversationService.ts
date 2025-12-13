@@ -1,7 +1,8 @@
 import api from "./index";
-import { type Conversation } from "@/types/chat";
+import { type Conversation, type ConversationCreate, type ConversationUpdate } from "@/types/chat";
 
 export async function getConversations(): Promise<Conversation[]> {
+  console.log("đang get");
   const res = await api.get<Conversation[]>("/Conversation");
   return res.data;
 }
@@ -11,12 +12,13 @@ export async function getConversation(id: number): Promise<Conversation> {
   return res.data;
 }
 
-export async function createConversation(food: Omit<Conversation, "id">): Promise<Conversation> {
+export async function createConversation(food: ConversationCreate): Promise<Conversation> {
+  console.log("đang tạo");
   const res = await api.post<Conversation>("/Conversation", food);
   return res.data;
 }
 
-export async function updateConversation(id: number, food: Conversation): Promise<void> {
+export async function updateConversation(id: number, food: ConversationUpdate): Promise<void> {
   await api.put(`/Conversation/${id}`, food);
 }
 

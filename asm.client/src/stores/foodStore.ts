@@ -4,11 +4,12 @@ import {
   getFoods,
   getFood,
   updateFood,
-  uploadImageToServer,
+  restoreFood,
+  getActiveFoods,
 } from "@/api/foodService";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { type Food } from "@/types/food";
+import { type Food, type FoodCreateOrUpdate } from "@/types/food";
 
 export const useFoodStore = defineStore("food", () => {
   const foods = ref<Food[]>([]);
@@ -20,6 +21,17 @@ export const useFoodStore = defineStore("food", () => {
       foods.value = await getFoods();
     } catch (err) {
       console.error("Lỗi khi tải foods: ", err);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function fetchActiveFoods() {
+    loading.value = true;
+    try {
+      foods.value = await getActiveFoods();
+    } catch (err) {
+      console.error("Lỗi khi tải foods đang hoạt động: ", err);
     } finally {
       loading.value = false;
     }
@@ -37,17 +49,7 @@ export const useFoodStore = defineStore("food", () => {
     }
   }
 
-  async function uploadImage(file: File): Promise<string> {
-    try {
-      const imageUrl = await uploadImageToServer(file);
-      return imageUrl;
-    } catch (err) {
-      console.error("Lỗi khi upload ảnh: ", err);
-      throw err;
-    }
-  }
-
-  async function addFood(foodData: Omit<Food, "id">) {
+  async function addFood(foodData: Omit<FoodCreateOrUpdate, "id">) {
     try {
       const newFood = await createFood(foodData);
       foods.value.unshift(newFood);
@@ -57,7 +59,7 @@ export const useFoodStore = defineStore("food", () => {
     }
   }
 
-  async function editFood(id: number, foodData: Food) {
+  async function editFood(id: number, foodData: FoodCreateOrUpdate) {
     try {
       await updateFood(id, foodData);
       const index = foods.value.findIndex((f) => f.id === id);
@@ -73,13 +75,40 @@ export const useFoodStore = defineStore("food", () => {
 
   async function removeFood(id: number) {
     try {
-      await deleteFood(id);
-      foods.value = foods.value.filter((f) => f.id !== id);
+      const deletedTime = await deleteFood(id);
+
+      const food = foods.value.find((c) => c.id === id);
+      if (food) {
+        food.deletedAt = deletedTime;
+      }
     } catch (err) {
-      console.error(`Lỗi khi xóa food ID ${id}: `, err);
+      console.error(`Lỗi khi xóa Food ID ${id}: `, err);
       throw err;
     }
   }
 
-  return { foods, loading, fetchFoods, addFood, editFood, removeFood, uploadImage, fetchFood };
+  async function restoreFoodById(id: number) {
+    try {
+      await restoreFood(id);
+      const food = foods.value.find((c) => c.id === id);
+      if (food) {
+        food.deletedAt = null;
+      }
+    } catch (err) {
+      console.error(`Lỗi khi restore Food ID ${id}: `, err);
+      throw err;
+    }
+  }
+
+  return {
+    foods,
+    loading,
+    fetchFoods,
+    addFood,
+    editFood,
+    removeFood,
+    fetchFood,
+    restoreFoodById,
+    fetchActiveFoods,
+  };
 });

@@ -11,7 +11,7 @@ const auth = useAuthStore();
   <div style="min-height: calc(100vh - 70px)">
     <router-view />
   </div>
-  <div v-if="auth.token && auth.user">
+  <div v-if="auth.token && auth.user && auth.user.role !== 'Admin'">
     <ChatWidget />
   </div>
   <div class="bg-dark text-white text-center py-4 mt-5">

@@ -1,5 +1,7 @@
 @import "./base.css";
-
+.img-gray {
+  filter: grayscale(100%);
+}
 .btn-warning {
   --bs-btn-color: #fff; /* chữ bình thường */
   --bs-btn-bg: #e0a800; /* nền vàng vừa */

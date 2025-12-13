@@ -1,31 +1,33 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import type { Cart, CartDetail, CartDetailCreate } from "@/types/cart";
-import { CartStatus } from "@/types/cart";
+import type { Cart, CartDetailCreateOrUpdate } from "@/types/cart";
 import {
   getCartActive,
   addCartDetail,
   updateCartDetail,
+  deleteCart,
   deleteCartDetail,
-  updateCartStatus,
 } from "@/api/cartService";
 
 export const useCartStore = defineStore("cart", () => {
   const cart = ref<Cart | null>(null);
+  const cartTotal = computed(
+    () => cart.value?.cartDetails.reduce((sum, d) => sum + d.price * d.quantity, 0) ?? 0
+  );
 
   const cartCount = computed(
     () => cart.value?.cartDetails.reduce((sum, i) => sum + i.quantity, 0) ?? 0
   );
 
-  const fetchCart = async (userId: string) => {
+  const fetchCart = async () => {
     try {
-      cart.value = await getCartActive(userId);
+      cart.value = await getCartActive();
     } catch (error) {
       console.error("Lấy cart thất bại:", error);
     }
   };
 
-  const addItem = async (cartDetail: CartDetailCreate) => {
+  const addItem = async (cartDetail: CartDetailCreateOrUpdate) => {
     try {
       const newDetail = await addCartDetail(cartDetail);
       if (cart.value) {
@@ -36,29 +38,27 @@ export const useCartStore = defineStore("cart", () => {
     }
   };
 
-  const updateItem = async (id: number, quantity: number) => {
-    if (!cart.value) return;
-    const index = cart.value.cartDetails.findIndex((d) => d.id === id);
-    if (index === -1) return;
-
-    const updatedDetail: CartDetail = {
-      ...cart.value.cartDetails[index],
-      quantity,
-    };
-
+  const updateItem = async (cartDetail: CartDetailCreateOrUpdate) => {
     try {
-      await updateCartDetail(id, updatedDetail);
-      cart.value.cartDetails.splice(index, 1, updatedDetail);
+      await updateCartDetail(cartDetail);
+
+      if (!cart.value) return;
+
+      const item = cart.value.cartDetails.find((d) => d.productId === cartDetail.productId);
+
+      if (item) {
+        item.quantity = cartDetail.quantity;
+      }
     } catch (error) {
       console.error("Cập nhật item thất bại:", error);
     }
   };
 
-  const removeItem = async (id: number) => {
+  const removeItem = async (productId: number) => {
     if (!cart.value) return;
     try {
-      await deleteCartDetail(id);
-      cart.value.cartDetails = cart.value.cartDetails.filter((d) => d.id !== id);
+      await deleteCartDetail(productId);
+      cart.value.cartDetails = cart.value.cartDetails.filter((d) => d.productId !== productId);
     } catch (error) {
       console.error("Xóa item thất bại:", error);
     }
@@ -67,13 +67,10 @@ export const useCartStore = defineStore("cart", () => {
   const checkOutCart = async () => {
     if (!cart.value) return;
     try {
-      await updateCartStatus(cart.value.id, {
-        ...cart.value,
-        status: CartStatus.CheckedOut,
-      });
-      cart.value.status = CartStatus.CheckedOut;
+      await deleteCart();
+      cart.value = null;
     } catch (error) {
-      console.error("Cập nhật trạng thái cart thất bại:", error);
+      console.error("Xóa cart thất bại:", error);
     }
   };
 
@@ -90,5 +87,6 @@ export const useCartStore = defineStore("cart", () => {
     removeItem,
     checkOutCart,
     clear,
+    cartTotal,
   };
 });

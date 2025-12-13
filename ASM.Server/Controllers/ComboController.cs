@@ -34,7 +34,8 @@ namespace ASM.Server.Controllerss
 		public async Task<ActionResult<IEnumerable<ComboResponDto>>> GetActive()
 		{
 			var result = await _context.Combos
-				.Where(c => c.DeletedAt == null || c.IsAvailable)
+                .Include(c => c.ComboFoods)
+				.Where(c => c.DeletedAt == null)
 				.Select(c => new ComboResponDto
 				{
 					Id = c.Id,
@@ -94,7 +95,7 @@ namespace ASM.Server.Controllerss
 			var result = await _context.Combos
                 .Include(c => c.ComboFoods)
                 .Include(c => c.Reviews)
-				.Where(c => c.DeletedAt == null && c.Id == id)
+				.Where(c =>  c.Id == id)
 	            .Select(c => new ComboResponDto
 	            {
 					Id = c.Id,
@@ -126,6 +127,13 @@ namespace ASM.Server.Controllerss
 			return Ok(result);
         }
 
+        [HttpGet("comboFood")]
+        public async Task<IActionResult> getcf()
+        {
+            var result = await _context.ComboFoods.ToListAsync();
+            return Ok(result);
+        }
+
         // ================================================================
         // CREATE COMBO
         // ================================================================
@@ -150,7 +158,8 @@ namespace ASM.Server.Controllerss
                 Name = request.Name,
                 Price = request.Price,
                 Description = request.Description ?? "No description",
-                ImageUrl = imageUrl
+                ImageUrl = imageUrl,
+                IsAvailable = request.IsAvailable
             };
 
             _context.Combos.Add(combo);
@@ -193,6 +202,7 @@ namespace ASM.Server.Controllerss
 
             combo.Name = request.Name;
             combo.Price = request.Price;
+            combo.IsAvailable = request.IsAvailable;
 
             if (request.FImageFile != null)
             {
@@ -241,5 +251,22 @@ namespace ASM.Server.Controllerss
 
             return NoContent();
         }
-    }
+
+		// <summary>
+		/// Kho phuc mon 
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		[HttpPatch("{id}/restore")]
+		public async Task<IActionResult> Restore(int id)
+		{
+			var combo = await _context.Combos.FindAsync(id);
+			if (combo == null)
+				return NotFound();
+
+			combo.DeletedAt = null;
+			await _context.SaveChangesAsync();
+			return Ok();
+		}
+	}
 }

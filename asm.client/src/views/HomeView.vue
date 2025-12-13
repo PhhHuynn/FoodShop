@@ -140,8 +140,8 @@ onMounted(async () => {
   await categoryStore.fetchCategories();
   categories.value = categoryStore.categories;
 
-  await foodStore.fetchFoods();
-  await comboStore.fetchComboes();
+  await foodStore.fetchActiveFoods();
+  await comboStore.fetchActiveCombos();
 });
 
 const selectCategory = (cat: number | "all" | "combo") => {

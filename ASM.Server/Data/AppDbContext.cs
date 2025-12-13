@@ -95,11 +95,6 @@ namespace ASM.Server.Data
 				.HasForeignKey(c => c.CustomerId)
 				.OnDelete(DeleteBehavior.Restrict);
 
-			modelBuilder.Entity<Conversation>()
-				.HasOne(c => c.Employee)
-				.WithMany()
-				.HasForeignKey(c => c.EmployeeId)
-				.OnDelete(DeleteBehavior.Restrict);
 
 			modelBuilder.Entity<Conversation>()
 				.HasMany(c => c.Messages)

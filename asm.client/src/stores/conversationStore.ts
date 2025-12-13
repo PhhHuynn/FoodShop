@@ -7,7 +7,7 @@ import {
 } from "@/api/conversationService";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { type Conversation } from "@/types/chat";
+import { type Conversation, type ConversationUpdate } from "@/types/chat";
 
 export const useConversationStore = defineStore("conversation", () => {
   const conversations = ref<Conversation[]>([]);
@@ -46,7 +46,7 @@ export const useConversationStore = defineStore("conversation", () => {
     }
   }
 
-  async function editConversation(id: number, conversationData: Conversation) {
+  async function editConversation(id: number, conversationData: ConversationUpdate) {
     try {
       console.log(conversationData);
       await updateConversation(id, conversationData);

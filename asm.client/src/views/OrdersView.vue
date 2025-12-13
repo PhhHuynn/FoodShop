@@ -57,7 +57,7 @@ onMounted(async () => {
   try {
     const userId = authStore.user?.id;
     if (!userId) return;
-    orders.value = await getOrdersByUserId(userId);
+    orders.value = await getOrdersByUserId();
   } catch (error) {
     console.error("Lỗi khi tải đơn hàng:", error);
   } finally {
