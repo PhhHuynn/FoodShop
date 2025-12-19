@@ -74,8 +74,9 @@ dotnet ef database update
 cd asm.api
 dotnet run
 ```
-#### 4. Chạy FrontendBashcd asm.client
-```
+#### 4. Chạy Frontend
+```Bash
+cd asm.client
 npm install
 npm run dev
 ```
