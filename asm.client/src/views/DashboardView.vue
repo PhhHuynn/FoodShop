@@ -38,10 +38,10 @@
         </div>
 
         <div class="mb-3">
-          <label for="newPassword" class="form-label">Mật khẩu mới</label>
+          <label for="passwordNew" class="form-label">Mật khẩu mới</label>
           <input
-            id="newPassword"
-            v-model="form.newPassword"
+            id="passwordNew"
+            v-model="form.passwordNew"
             type="password"
             class="form-control"
             placeholder="Nhập mật khẩu bạn muốn thiết lập"
@@ -63,22 +63,22 @@
 
       <template v-else>
         <div class="mb-3">
-          <label for="oldPassword" class="form-label">Mật khẩu cũ</label>
+          <label for="passwordOld" class="form-label">Mật khẩu cũ</label>
           <input
-            id="oldPassword"
-            v-model="form.oldPassword"
+            id="passwordOld"
+            v-model="form.passwordOld"
             type="password"
             class="form-control"
             placeholder="Chỉ nhập nếu bạn muốn thay đổi mật khẩu"
-            :required="!!form.newPassword"
+            :required="!!form.passwordNew"
           />
         </div>
 
         <div class="mb-4">
-          <label for="newPassword" class="form-label">Mật khẩu mới</label>
+          <label for="passwordNew" class="form-label">Mật khẩu mới</label>
           <input
-            id="newPassword"
-            v-model="form.newPassword"
+            id="passwordNew"
+            v-model="form.passwordNew"
             type="password"
             class="form-control"
             placeholder="Để trống nếu không muốn thay đổi"
@@ -115,8 +115,8 @@ const form = ref<AccountUpdate>({
   status: UserStatus.Active as UserStatus,
   fullName: "",
   address: undefined,
-  newPassword: "",
-  oldPassword: "",
+  passwordNew: "",
+  passwordOld: "",
 });
 
 onMounted(async () => {
@@ -130,8 +130,8 @@ onMounted(async () => {
       form.value.address = userAccount.address;
       form.value.status = userAccount.status;
 
-      form.value.newPassword = "";
-      form.value.oldPassword = "";
+      form.value.passwordNew = "";
+      form.value.passwordOld = "";
 
       hasLocalPassword.value = !!userAccount.passwordHash;
     }
@@ -144,17 +144,17 @@ onMounted(async () => {
 const handleSubmit = async () => {
   try {
     if (!hasLocalPassword.value) {
-      if (form.value.newPassword !== confirmPassword.value) {
+      if (form.value.passwordNew !== confirmPassword.value) {
         alert("Mật khẩu mới và xác nhận mật khẩu không khớp.");
         return;
       }
-      if (!form.value.newPassword) {
-        form.value.oldPassword = "";
+      if (!form.value.passwordNew) {
+        form.value.passwordOld = "";
       } else {
-        form.value.oldPassword = "";
+        form.value.passwordOld = "";
       }
     } else {
-      if (form.value.newPassword && !form.value.oldPassword) {
+      if (form.value.passwordNew && !form.value.passwordOld) {
         alert("Vui lòng nhập Mật khẩu cũ để xác nhận thay đổi mật khẩu.");
         return;
       }
@@ -166,25 +166,25 @@ const handleSubmit = async () => {
       email: form.value.email,
       address: form.value.address || undefined,
       status: form.value.status,
-      newPassword: form.value.newPassword,
-      oldPassword: form.value.oldPassword,
+      passwordNew: form.value.passwordNew,
+      passwordOld: form.value.passwordOld,
     };
 
-    if (!updateData.newPassword) {
-      delete updateData.newPassword;
-      delete updateData.oldPassword;
+    if (!updateData.passwordNew) {
+      delete updateData.passwordNew;
+      delete updateData.passwordOld;
     }
 
     await authStore.editAccount(updateData);
 
     alert("Cập nhật tài khoản thành công!");
 
-    if (!hasLocalPassword.value && form.value.newPassword) {
+    if (!hasLocalPassword.value && form.value.passwordNew) {
       hasLocalPassword.value = true;
     }
 
-    form.value.newPassword = "";
-    form.value.oldPassword = "";
+    form.value.passwordNew = "";
+    form.value.passwordOld = "";
     confirmPassword.value = "";
   } catch (err) {
     console.error("Lỗi khi cập nhật tài khoản:", err);

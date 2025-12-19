@@ -22,8 +22,8 @@ export interface AccountUpdate {
   id: string;
   email: string;
   status: UserStatus;
-  newPassword?: string;
-  oldPassword?: string;
+  passwordNew?: string;
+  passwordOld?: string;
   fullName: string;
   address?: string;
 }

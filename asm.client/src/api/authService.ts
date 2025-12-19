@@ -12,5 +12,5 @@ export async function loginWithGoogle(id_token: string): Promise<AuthResponse> {
 }
 
 export async function updateAccount(id: string, user: AccountUpdate): Promise<void> {
-  await api.patch(`/auth/${id}`, user);
+  await api.patch(`/users/me`, user);
 }

@@ -205,82 +205,84 @@ namespace ASM.Server.Controllers
 			return Ok(new { message = "User updated successfully." });
 		}
 
-		/// <summary>
-		/// Cập nhật thông tin cá nhân của chính người dùng.
-		/// </summary>
-		/// <remarks>
-		/// Đối với việc đổi mật khẩu:
-		/// - Nếu người dùng đã có mật khẩu, phải cung cấp `PasswordOld`.
-		/// - Nếu người dùng chưa có mật khẩu, chỉ cần `PasswordNew`.
-		/// </remarks>
-		/// <returns>Trả về thông báo thành công và có thể trả về thông tin người dùng cập nhật.</returns>
-		/// <response code="200">Cập nhật thành công.</response>
-		/// <response code="400">
-		/// Một số trường hợp lỗi xảy ra:
-		/// - Dữ liệu gửi lên không hợp lệ.
-		/// - PasswordOld không đúng khi đổi mật khẩu.
-		/// - Lỗi trong quá trình update user hoặc password.
-		/// </response>
-		/// <response code="404">Không tìm thấy người dùng tương ứng với JWT hoặc người dùng đã bị xóa.</response>
-		[HttpPatch("me")]
-		public async Task<ActionResult<string>> PatchProfile([FromBody] ProfileUpdateDto model)
-		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var user = await _userManager.FindByIdAsync(userId);
-			if (user == null || user.DeletedAt != null)
-				return NotFound(new { message = "User not found." });
+        /// <summary>
+        /// Cập nhật thông tin cá nhân của chính người dùng.
+        /// </summary>
+        /// <remarks>
+        /// Đối với việc đổi mật khẩu:
+        /// - Nếu người dùng đã có mật khẩu, phải cung cấp `PasswordOld`.
+        /// - Nếu người dùng chưa có mật khẩu, chỉ cần `PasswordNew`.
+        /// </remarks>
+        /// <returns>Trả về thông báo thành công và có thể trả về thông tin người dùng cập nhật.</returns>
+        /// <response code="200">Cập nhật thành công.</response>
+        /// <response code="400">
+        /// Một số trường hợp lỗi xảy ra:
+        /// - Dữ liệu gửi lên không hợp lệ.
+        /// - PasswordOld không đúng khi đổi mật khẩu.
+        /// - Lỗi trong quá trình update user hoặc password.
+        /// </response>
+        /// <response code="404">Không tìm thấy người dùng tương ứng với JWT hoặc người dùng đã bị xóa.</response>
+        [HttpPatch("me")]
+        public async Task<IActionResult> PatchProfile([FromBody] ProfileUpdateDto model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId);
 
-			if (!string.IsNullOrEmpty(model.FullName))
-				user.FullName = model.FullName;
+            if (user == null || user.DeletedAt != null)
+                return NotFound(new { message = "User not found." });
 
-			if (!string.IsNullOrEmpty(model.Address))
-				user.Address = model.Address;
+            if (!string.IsNullOrEmpty(model.PasswordNew))
+            {
+                var hasPassword = await _userManager.HasPasswordAsync(user);
+                IdentityResult passwordResult;
 
-			var result = await _userManager.UpdateAsync(user);
-			if (!result.Succeeded)
-				return BadRequest(result.Errors);
+                if (hasPassword)
+                {
+                    if (string.IsNullOrEmpty(model.PasswordOld))
+                        return BadRequest(new { message = "Old password is required to change the password." });
 
-			if (!string.IsNullOrEmpty(model.PasswordNew))
-			{
-				var hasPasword = await _userManager.HasPasswordAsync(user);
-				IdentityResult passwordResult;
+                    passwordResult = await _userManager.ChangePasswordAsync(
+                        user,
+                        model.PasswordOld,
+                        model.PasswordNew
+                    );
+                }
+                else
+                {
+                    passwordResult = await _userManager.AddPasswordAsync(user, model.PasswordNew);
+                }
 
-				if (hasPasword)
-				{
-					if (string.IsNullOrEmpty(model.PasswordOld))
-					{
-						return BadRequest(new { message = "Old password is required to change the password." });
-					}
-					passwordResult = await _userManager.ChangePasswordAsync(user, model.PasswordOld, model.PasswordNew);
-				}
-				else
-				{
-					passwordResult = await _userManager.AddPasswordAsync(user, model.PasswordNew);
-				}
+                if (!passwordResult.Succeeded)
+                    return BadRequest(passwordResult.Errors);
+            }
 
-				if (!passwordResult.Succeeded)
-				{
-					return BadRequest(passwordResult.Errors);
-				}
-			}
+            // 2️⃣ UPDATE PROFILE SAU
+            if (!string.IsNullOrEmpty(model.FullName))
+                user.FullName = model.FullName;
 
-			return Ok(new { message = "Profile updated successfully." });
-		}
+            if (!string.IsNullOrEmpty(model.Address))
+                user.Address = model.Address;
 
-		/// <summary>
-		/// Xóa tạm thời một người dùng (dành cho admin).
-		/// </summary>
-		/// <remarks>
-		/// Hành động này chỉ đánh dấu đánh giá là đã bị xóa (soft delete),
-		/// không xóa hoàn toàn khỏi cơ sở dữ liệu.
-		/// </remarks>
-		/// <param name="id">ID của người dùng cần xóa.</param>
-		/// <returns>Trả về thông báo thành công hoặc lỗi.</returns>
-		/// <response code="200">User bị xóa thành công.</response>
-		/// <response code="400">Có lỗi xảy ra trong quá trình xóa.</response>
-		/// <response code="404">Không tìm thấy user với ID tương ứng.</response>
-		/// <response code="403">Không có quyền thực hiện hành động này.</response>
-		[HttpDelete("{id}")]
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+                return BadRequest(updateResult.Errors);
+
+            return Ok(new { message = "Profile updated successfully." });
+        }
+        /// <summary>
+        /// Xóa tạm thời một người dùng (dành cho admin).
+        /// </summary>
+        /// <remarks>
+        /// Hành động này chỉ đánh dấu đánh giá là đã bị xóa (soft delete),
+        /// không xóa hoàn toàn khỏi cơ sở dữ liệu.
+        /// </remarks>
+        /// <param name="id">ID của người dùng cần xóa.</param>
+        /// <returns>Trả về thông báo thành công hoặc lỗi.</returns>
+        /// <response code="200">User bị xóa thành công.</response>
+        /// <response code="400">Có lỗi xảy ra trong quá trình xóa.</response>
+        /// <response code="404">Không tìm thấy user với ID tương ứng.</response>
+        /// <response code="403">Không có quyền thực hiện hành động này.</response>
+        [HttpDelete("{id}")]
 		[Authorize(Roles = "Admin")]
 		public async Task<ActionResult<string>> DeleteUser(string id)
 		{
