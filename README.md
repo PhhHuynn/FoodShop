@@ -37,11 +37,11 @@ Dashboard tổng quan:
 
 ## Công nghệ sử dụng 
 
-Backend: ASP.NET Core 8 (Web API)
-Frontend: Vue.js 3 (SPA)
-Database: SQL Server + Entity Framework Core (Code-First với Migration)
-Authentication: JWT + Google OAuth
-Realtime Chat: SignalR (hoặc công nghệ bạn dùng cho chat realtime)
+- Backend: ASP.NET Core 8 (Web API)
+- Frontend: Vue.js 3 (SPA)
+- Database: SQL Server + Entity Framework Core (Code-First với Migration)
+- Authentication: JWT + Google OAuth
+- Realtime Chat: SignalR (hoặc công nghệ bạn dùng cho chat realtime)
 
 ## Cài đặt & Chạy local 
 ### Yêu cầu
@@ -59,14 +59,56 @@ clone https://github.com/PhhHuynn/FoodShop.git
 cd foodshop-net1062
 ```
 
-#### 2. Cấu hình Database
+#### 2. Tạo file cấu hình local
    
-Mở file asm.api/appsettings.json, chỉnh sửa ConnectionStrings phù hợp với SQL Server local của bạn.
+Tạo file ASM.Server/appsettings.json
 
-Chạy migration để tạo database:
-```Bash
-cd asm.api
-dotnet ef database update
+Mở file và điền các thông tin sau:
+```
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+
+  "AllowedHosts": "*",
+
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=NET106-ASM;Trusted_Connection=True;TrustServerCertificate=True;"
+  },
+
+  "Jwt": {
+    "Key": "YOUR_SECRET_KEY",
+    "Issuer": "YOUR_ISSUER",
+    "Audience": "YOUR_AUDIENCE",
+    "DurationInMinutes": 60
+  },
+
+  "Authentication": {
+    "Google": {
+      "ClientId": "YOUR_GOOGLE_CLIENT_ID",
+      "ClientSecret": "YOUR_GOOGLE_CLIENT_SECRET"
+    }
+  },
+
+  "IpRateLimiting": {
+    "EnableEndpointRateLimiting": true,
+    "StackBlockedRequests": false,
+    "RealIpHeader": "X-Real-IP",
+    "ClientIdHeader": "X-ClientId",
+    "HttpStatusCode": 429,
+    "GeneralRules": [
+      {
+        "Endpoint": "*",
+        "Period": "1m",
+        "Limit": 60
+      }
+    ]
+  }
+}
+
 ```
 
 #### 3. Chạy Backend
