@@ -126,8 +126,3 @@ npm run dev
 Mở browser vào địa chỉ frontend
 API sẽ được gọi tự động từ frontend.
 
-
-## Tác giả 
-Huyền
-
-Dự án Assignment môn .NET1062 - FPT Polytechnic
